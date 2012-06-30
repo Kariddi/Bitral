@@ -4,6 +4,7 @@ foo.txt
 # Ignore (generated) html files,
 Testing
 *.cmake
+!cmake
 CMakeFiles
 CMakeCache.txt
 Makefile
