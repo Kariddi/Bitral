@@ -4,7 +4,7 @@ foo.txt
 # Ignore (generated) html files,
 Testing
 *.cmake
-!cmake
+!FindLLVM.cmake
 CMakeFiles
 CMakeCache.txt
 Makefile
@@ -12,3 +12,7 @@ Makefile
 #!foo.html
 # Ignore objects and archives.
 *.[oa]
+*.so
+*.dylib
+*.dll
+*.exe

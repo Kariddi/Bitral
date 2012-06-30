@@ -1,5 +1,10 @@
 cmake_minimum_required (VERSION 2.6)
 project (bitral)
+configure_file (
+  "${PROJECT_SOURCE_DIR}/include/BitralConfig.h.in"
+  "${PROJECT_BINARY_DIR}/include/BitralConfig.h"
+)
+add_definitions(-std=c++11)
 enable_testing()
 add_subdirectory(src)
 add_subdirectory(tests)
