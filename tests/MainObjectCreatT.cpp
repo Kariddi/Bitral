@@ -3,7 +3,7 @@
 using namespace Bitral;
 
 int main() {
-  BitralContext b();
+  BitralContext b;
 
   return 0;
 }
