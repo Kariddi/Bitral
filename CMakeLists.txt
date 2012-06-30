@@ -1,0 +1,6 @@
+cmake_minimum_required (VERSION 2.6)
+project (bitral)
+enable_testing()
+add_subdirectory(src)
+add_subdirectory(tests)
+add_test(main_object_creation_test ${CMAKE_CURRENT_BINARY_DIR}/tests/main_object_creation_test)

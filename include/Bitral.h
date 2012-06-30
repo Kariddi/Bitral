@@ -1,0 +1,7 @@
+namespace Bitral {
+
+class Bitral {
+
+};
+
+}
