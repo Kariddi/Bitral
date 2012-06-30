@@ -1,7 +1,9 @@
-#include <Bitral.h>
+#include <BitralContext.h>
+
+using namespace Bitral;
 
 int main() {
-  Bitral::Bitral b();
+  BitralContext b();
 
   return 0;
 }

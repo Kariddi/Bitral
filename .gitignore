@@ -16,3 +16,4 @@ Makefile
 *.dylib
 *.dll
 *.exe
+*.swp

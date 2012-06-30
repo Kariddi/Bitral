@@ -1,4 +1,6 @@
 include_directories(${PROJECT_SOURCE_DIR}/include)
 add_executable(main_object_creation_test MainObjectCreatT.cpp)
+add_executable(create_register_test CreateRegisterT.cpp)
 set (LIBS ${LIBS} bitral)
 target_link_libraries(main_object_creation_test ${LIBS})
+target_link_libraries(create_register_test ${LIBS})
