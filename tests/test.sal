@@ -1,0 +1,9 @@
+MOVI $A, 0
+MOVI $B, 1
+ADD $A, $B
+ADDI $B,1
+CMPI $B, 10
+BRLE -12
+MOVI $C, 0
+ST $C, $A
+HLT

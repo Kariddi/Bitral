@@ -12,10 +12,13 @@ class BitralContext {
 
 typedef std::unordered_map<std::string, Register*> RegisterMap;
 typedef RegisterMap::iterator RegisterMapIterator;
+typedef std::unordered_map<std::uint64_t, CodeRegion*> CodeRegionMap;
+typedef CodeRegionMap::iterator CodeRegionMapIterator;
 
   RegisterMap Registers;
 
 public:
+  CodeRegion* createNewCodeRegion();
   Register* addRegister(std::uint16_t bit_size, std::string name);
   Register* addRegister(std::uint16_t bit_size, std::string name, void* memory_map_location);
   Register* getRegister(std::string name);

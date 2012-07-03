@@ -1,11 +1,12 @@
 #ifndef __BITRAL_REGISTER_H__
 #define __BITRAL_REGISTER_H__
 
+#include <Operand.h>
 #include <BitralConfig.h>
 
 namespace Bitral {
 
-class Register {};
+class Register : public Operand {};
 
 }
 
