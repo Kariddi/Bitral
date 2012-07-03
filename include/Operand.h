@@ -7,10 +7,12 @@ namespace Bitral {
 class Operand {
 
   std::uint16_t BitSize;
+protected:
+  //LLVM
 public:
-  virtual void add(Operand* addend) = 0;
-  virtual Comparison* compare(Operand* op) = 0;
-  virtual void subtract(Operand* addend) = 0;
+  //virtual void add(Operand* addend) = 0;
+  //virtual Comparison* compare(Operand* op) = 0;
+  //virtual void subtract(Operand* addend) = 0;
 };
 
 }

@@ -3,7 +3,9 @@
 
 #include <string>
 #include <unordered_map>
+#include <llvm/LLVMContext.h>
 #include <Register.h>
+#include <CodeRegion.h>
 #include <BitralConfig.h>
 
 namespace Bitral {
@@ -16,6 +18,7 @@ typedef std::unordered_map<std::uint64_t, CodeRegion*> CodeRegionMap;
 typedef CodeRegionMap::iterator CodeRegionMapIterator;
 
   RegisterMap Registers;
+  llvm::LLVMContext LLVMCtx;
 
 public:
   CodeRegion* createNewCodeRegion();

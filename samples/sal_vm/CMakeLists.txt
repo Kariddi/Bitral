@@ -1,0 +1,8 @@
+cmake_minimum_required (VERSION 2.6)
+add_executable(sal_vm main.cpp RecFunctions.cpp)
+set(SAL_VM_INCLUDE "samples/sal_vm/include")
+include_directories ("${CMAKE_SOURCE_DIR}/include")
+include_directories ("${CMAKE_SOURCE_DIR}/${SAL_VM_INCLUDE}")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(LIBS ${LIBS} bitral)
+target_link_libraries(sal_vm ${LIBS})
