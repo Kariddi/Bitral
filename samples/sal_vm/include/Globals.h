@@ -39,8 +39,5 @@ typedef struct BitralRegisters {
 
 typedef void(*RecompileFunction)();
 
-extern Registers Regs;
-
-extern BitralRegisters BitralRegs;
 
 #endif
