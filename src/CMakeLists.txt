@@ -7,5 +7,5 @@ include_directories(${LLVM_INCLUDE_DIR})
 link_directories(${LLVM_LIBRARY_DIR})
 set(BITRAL_LIBS ${BITRAL_LIBS} ${LLVM_MODULE_LIBS})
 
-add_library(bitral SHARED BitralContext.cpp)
+add_library(bitral SHARED BitralContext.cpp ConstantMemoryAddress.cpp)
 target_link_libraries(bitral ${BITRAL_LIBS})

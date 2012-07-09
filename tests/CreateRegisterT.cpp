@@ -5,13 +5,15 @@
 
 using namespace Bitral;
 
+enum RegCodes { EAX, EBX, ECX};
+
 int main() {
 
   BitralContext b;
 
-  Register* Reg = b.addRegister(32, "eax");
+  Register* Reg = b.addRegister(32, EBX);
 
-  Register* Find = b.getRegister("eax");
+  Register* Find = b.getRegister(EBX);
 
   assert(Reg == Find);
 

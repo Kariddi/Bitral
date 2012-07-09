@@ -1,10 +1,12 @@
 #include <RecFunctions.h>
 #include <iostream>
 #include <fstream>
+#include <RegisterCodes.h>
 #include <Globals.h>
 #include <BitralContext.h>
 
 #define OPCODE_NUM 30
+#define OPCODE (opcode >> 24) & 0xff
 
 enum Opcodes { LD, ST, ADD, ADDI, SUB, SUBI, MUL, MULI, DIV, DIVI, CMP, CMPI,
                MOV, MOVI, OR, ORI, XOR, XORI, AND, ANDI, TEST, TESTI, BRE, BRLE,
@@ -24,24 +26,30 @@ void initRoutines() {
 
 }
 
-Registers Regs;
+Register Regs[REG_NUM];
 
 BitralRegisters BitralRegs;
 
 Memory Mem;
 
+Bitral::BitralContext BContext;
+
+uint32_t opcode;
+
+Bitral::CodeRegion* Region;
+
 void initBitralData(Bitral::BitralContext &b) {
 
-  BitralRegs.A = b.addRegister(32, "A", &Regs.A);
-  BitralRegs.B = b.addRegister(32, "B", &Regs.B);
-  BitralRegs.C = b.addRegister(32, "C", &Regs.C);
-  BitralRegs.D = b.addRegister(32, "D", &Regs.D);
-  BitralRegs.E = b.addRegister(32, "E", &Regs.E);
-  BitralRegs.F = b.addRegister(32, "F", &Regs.F);
-  BitralRegs.SP = b.addRegister(32, "SP", &Regs.SP);
-  BitralRegs.PC = b.addRegister(32, "PC", &Regs.PC);
-  BitralRegs.STATUS = b.addRegister(32, "STATUS", &Regs.STATUS);
-
+  BitralRegs.A = b.addRegister(32, REG_A, &Regs[REG_A]);
+  BitralRegs.B = b.addRegister(32, REG_B, &Regs[REG_B]);
+  BitralRegs.C = b.addRegister(32, REG_C, &Regs[REG_C]);
+  BitralRegs.D = b.addRegister(32, REG_D, &Regs[REG_D]);
+  BitralRegs.E = b.addRegister(32, REG_E, &Regs[REG_E]);
+  BitralRegs.F = b.addRegister(32, REG_F, &Regs[REG_F]);
+  BitralRegs.SP = b.addRegister(32, REG_SP, &Regs[REG_SP]);
+  BitralRegs.PC = b.addRegister(32, REG_PC, &Regs[REG_PC]);
+  BitralRegs.STATUS = b.addRegister(32, REG_STATUS, &Regs[REG_STATUS]);
+  b.setMemorySpace(Mem.mem8);
 }
 
 int main(int argc, char** argv) {
@@ -50,8 +58,7 @@ int main(int argc, char** argv) {
     return 1;
   }
   initRoutines();
-  Bitral::BitralContext b;
-  initBitralData(b);
+  initBitralData(BContext);
   
   std::ifstream input(argv[1]);
   if (!input.is_open()) {
@@ -69,6 +76,21 @@ int main(int argc, char** argv) {
   std::streampos remaining_size = input.tellg() - curr_pos;
   input.seekg(curr_pos, std::ios_base::beg);
   input.read((char*)Mem.mem32 + current_mem_ptr, remaining_size);
+
+  Region = BContext.createNewCodeRegion(current_mem_ptr);
+
+  Regs[REG_PC] = current_mem_ptr;
+  opcode = *(Mem.mem32 + current_mem_ptr);
+  while (OPCODE != HLT) {
+//    while (OPCODE < BRE || OPCODE == NOT) {
+      recompile_routines[OPCODE]();
+      opcode = *(Mem.mem32+current_mem_ptr++);
+//    }
+  }
+
+  Region->closeRegion();
+  void(*Code)() = Region->compile();
+  Code();
 
   return 0;
 }

@@ -5,13 +5,15 @@
 #include <cctype>
 #include <cstdio>
 #include <unordered_map>
+
 using namespace std;
 
 enum sal_tokens { LD, ST, ADD, SUB, MUL, DIV, CMP, MOV, OR, XOR, AND, TEST, 
                   ADDI,SUBI, MULI, DIVI, CMPI, MOVI, ORI, XORI, ANDI, TESTI,
-                  BRE, BRLE, BRL, BRG, BRGE, BR, HLT, NOP, INTEGER, REG_A, REG_B,
-                  REG_C, REG_D, REG_E, REG_F, REG_SP, REG_PC, REG_STATUS, 
-                  NO_REC_TOK, EOF_TOK };
+                  BRE, BRLE, BRL, BRG, BRGE, BR, HLT, NOP, INTEGER, REG_A_TOK,
+                  REG_B_TOK, REG_C_TOK, REG_D_TOK, REG_E_TOK, REG_F_TOK, REG_SP_TOK, 
+                  REG_PC_TOK, REG_STATUS_TOK, NO_REC_TOK, EOF_TOK };
+
 int value;
 ifstream inputf;
 ofstream outputf;
@@ -23,7 +25,7 @@ unordered_map<string, sal_tokens> reg_map;
 
 static void initLexer() {
   opcode_map.reserve(NOP+1);
-  reg_map.reserve(NO_REC_TOK-REG_A);
+  reg_map.reserve(NO_REC_TOK-REG_A_TOK);
 
   opcode_map["LD"] = LD;
   opcode_map["ST"] = ST;
@@ -55,15 +57,15 @@ static void initLexer() {
   opcode_map["BR"] = BR;
   opcode_map["HLT"] = HLT;
   opcode_map["NOP"] = NOP;
-  reg_map["A"] = REG_A;
-  reg_map["B"] = REG_B;
-  reg_map["C"] = REG_C;
-  reg_map["D"] = REG_D;
-  reg_map["E"] = REG_E;
-  reg_map["F"] = REG_F;
-  reg_map["SP"] = REG_SP;
-  reg_map["PC"] = REG_PC;
-  reg_map["STATUS"] = REG_STATUS;
+  reg_map["A"] = REG_A_TOK;
+  reg_map["B"] = REG_B_TOK;
+  reg_map["C"] = REG_C_TOK;
+  reg_map["D"] = REG_D_TOK;
+  reg_map["E"] = REG_E_TOK;
+  reg_map["F"] = REG_F_TOK;
+  reg_map["SP"] = REG_SP_TOK;
+  reg_map["PC"] = REG_PC_TOK;
+  reg_map["STATUS"] = REG_STATUS_TOK;
 }
 
 static sal_tokens lexer() {
@@ -153,15 +155,15 @@ static bool parseRegRegInst() {
   data[0] = static_cast<char>(current_token);
   data[1] = 0;
   current_token = lexer();
-  if (current_token >= REG_A && current_token <= REG_STATUS)
-    data[2] = static_cast<char>(current_token);
+  if (current_token >= REG_A_TOK && current_token <= REG_STATUS_TOK)
+    data[2] = static_cast<char>(current_token-REG_A_TOK);
   else
     return false;
   current_token = lexer();
   if (current_token != NO_REC_TOK || value != ',')
     return false;
   current_token = lexer();
-  if (current_token >= REG_A && current_token <= REG_STATUS)
+  if (current_token >= REG_A_TOK && current_token <= REG_STATUS_TOK)
     data[3] = static_cast<char>(current_token);
   else
      return false;
@@ -173,7 +175,7 @@ static bool parseRegImmInst() {
   char data[4];
   data[0] = static_cast<char>(current_token);
   current_token = lexer();
-  if (current_token >= REG_A && current_token <= REG_STATUS)
+  if (current_token >= REG_A_TOK && current_token <= REG_STATUS_TOK)
     data[1] = static_cast<char>(current_token);
   else
     return false;

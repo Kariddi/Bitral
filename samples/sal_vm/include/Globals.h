@@ -4,6 +4,7 @@
 #include <BitralContext.h>
 
 #define _1kb 1024
+#define REG_NUM 9
 
 typedef union {
   uint8_t mem8[_1kb];
@@ -13,7 +14,7 @@ typedef union {
 
 typedef uint32_t Register;
 
-typedef struct Registers {
+/*typedef struct Registers {
   Register A;
   Register B;
   Register C;
@@ -24,6 +25,7 @@ typedef struct Registers {
   Register PC;
   Register STATUS;
 } Registers;
+*/
 
 typedef struct BitralRegisters {
   Bitral::Register* A;

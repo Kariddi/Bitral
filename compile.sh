@@ -11,5 +11,5 @@ then
   rm -R $DELETE 2> /dev/null
 else
   cmake -DCMAKE_BUILD_TYPE=DEBUG -DBUILD_SHARED_LIBS=1 .
-  make
+  make VERBOSE=1
 fi

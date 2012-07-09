@@ -6,7 +6,10 @@
 
 namespace Bitral {
 
-class Register : public Operand {};
+class Register : public Operand {
+public:
+ Register() : Operand(0, NULL) {} 
+};
 
 }
 
