@@ -7,7 +7,7 @@ configure_file (
 if (~${DEBUG})
   add_definitions(-std=c++11 `llvm-config --cxxflags`)
 else (~${DEBUG})
-  add_definitions(-std=c++11 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS)
+  add_definitions(-std=c++11 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fvisibility-inlines-hidden -fno-exceptions -fPIC -Woverloaded-virtual -Wcast-qual)
 endif (~${DEBUG})
 enable_testing()
 add_subdirectory(src)
