@@ -6,10 +6,8 @@
 namespace Bitral {
 
 class Operand {
-
-  std::uint16_t BitSize;
-
 protected:
+  std::uint16_t BitSize;
   llvm::Value* OperandValue;
 
 public:

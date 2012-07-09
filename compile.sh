@@ -8,6 +8,7 @@ then
   DELETE="$DELETE `find . -name CMakeFiles`"
   DELETE="$DELETE `find . -name CTestTestfile.cmake`"
   DELETE="$DELETE `find . -name cmake_install.cmake`"
+  DELETE="include/BitralConfig.h $DELETE"
   rm -R $DELETE 2> /dev/null
 else
   cmake -DCMAKE_BUILD_TYPE=DEBUG -DBUILD_SHARED_LIBS=1 .

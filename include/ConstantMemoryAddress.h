@@ -1,7 +1,11 @@
 #ifndef __BITRAL_CONSTANT_MEMORY_ADDRESS_H__
 #define __BITRAL_CONSTANT_MEMORY_ADDRESS_H__
 
+#include <llvm/LLVMContext.h>
+#include <llvm/DerivedTypes.h>
+#include <llvm/Constants.h>
 #include <MemoryAddress.h>
+#include <Immediate.h>
 #include <BitralConfig.h>
 
 namespace Bitral {
@@ -14,14 +18,15 @@ class BitralContext;
 
 class ConstantMemoryAddress : public MemoryAddress {
 
-  std::uint64_t Address;
+Immediate ImmediateValue;
   friend class BitralContext;
 
 protected:
-  ConstantMemoryAddress(BitralContext& Context, std::uint16_t bit_size, std::uint64_t address);
-
+  ConstantMemoryAddress(const Immediate& immediate) : ImmediateValue(immediate) {}
+  
   // ConstantMemoryAddress(const BitralContext& Context, std::uint16_t bit_size, ArrayRef<std::uint64_t> address) : Address(bit_size, address) {}
- 
+public:
+  virtual std::uint16_t getBitSize();
 };
 
 }

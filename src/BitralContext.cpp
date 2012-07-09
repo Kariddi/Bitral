@@ -3,14 +3,14 @@
 using namespace Bitral;
 
 Register* BitralContext::addRegister(std::uint16_t bit_size, std::uint32_t code) {
-  Register* NewRegister = new Register();
+  Register* NewRegister = new Register(bit_size);
   Registers[code] = NewRegister;
 
   return NewRegister;
 }
 
 Register* BitralContext::addRegister(std::uint16_t bit_size, std::uint32_t code, const void* memory_map_location) {
-  Register* NewRegister = new Register();
+  Register* NewRegister = new Register(bit_size);
   Registers[code] = NewRegister;
 
   return NewRegister;
@@ -24,9 +24,10 @@ Register* BitralContext::getRegister(std::uint32_t code) const {
   return NULL;
 }
 
-ConstantMemoryAddress BitralContext::getConstantMemoryAddress(std::uint16_t bit_size, 
-                                                              std::uint64_t address) {
-  return ConstantMemoryAddress(*this, bit_size, address); 
+//ConstantMemoryAddress BitralContext::getConstantMemoryAddress(std::uint16_t bit_size, 
+//                                                              std::uint64_t address) {
+ConstantMemoryAddress BitralContext::getConstantMemoryAddress(const Immediate& immediate) {
+  return ConstantMemoryAddress(immediate); 
 }
  
 BitralContext::~BitralContext() {

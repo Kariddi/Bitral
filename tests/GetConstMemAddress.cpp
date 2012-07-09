@@ -9,7 +9,8 @@ int main() {
 
   BitralContext b;
 
-  ConstantMemoryAddress MemAddr = b.getConstantMemoryAddress(32, 1000);
+  
+  ConstantMemoryAddress MemAddr = b.getConstantMemoryAddress(b.getImmediate(32, 1000));
 
   assert(MemAddr.getBitSize() == 32);
 

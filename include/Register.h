@@ -6,9 +6,12 @@
 
 namespace Bitral {
 
+class RegisterMemoryAddress;
+
 class Register : public Operand {
+  friend class RegisterMemoryAddress;
 public:
- Register() : Operand(0, NULL) {} 
+ Register(std::uint16_t bit_size) : Operand(bit_size, NULL) {} 
 };
 
 }
