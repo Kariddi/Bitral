@@ -2,22 +2,22 @@
 
 using namespace Bitral;
 
-Register* BitralContext::addRegister(std::uint16_t bit_size, std::uint32_t code) {
+Register* BitralContext::addRegister(std::uint16_t bit_size, const std::string& name) {
   Register* NewRegister = new Register(bit_size);
-  Registers[code] = NewRegister;
+  Registers[name] = NewRegister;
 
   return NewRegister;
 }
 
-Register* BitralContext::addRegister(std::uint16_t bit_size, std::uint32_t code, const void* memory_map_location) {
+Register* BitralContext::addRegister(std::uint16_t bit_size, const std::string& name, const void* memory_map_location) {
   Register* NewRegister = new Register(bit_size);
-  Registers[code] = NewRegister;
+  Registers[name] = NewRegister;
 
   return NewRegister;
 }
 
-Register* BitralContext::getRegister(std::uint32_t code) const {
-  RegisterMapConstIterator FoundRegister = Registers.find(code);
+Register* BitralContext::getRegister(const std::string& name) const {
+  RegisterMapConstIterator FoundRegister = Registers.find(name);
   if (FoundRegister != Registers.end())
     return FoundRegister->second;
 
@@ -26,9 +26,9 @@ Register* BitralContext::getRegister(std::uint32_t code) const {
 
 //ConstantMemoryAddress BitralContext::getConstantMemoryAddress(std::uint16_t bit_size, 
 //                                                              std::uint64_t address) {
-ConstantMemoryAddress BitralContext::getConstantMemoryAddress(const Immediate& immediate) {
+/*ConstantMemoryAddress BitralContext::getConstantMemoryAddress(const Immediate& immediate) {
   return ConstantMemoryAddress(immediate); 
-}
+}*/
  
 BitralContext::~BitralContext() {
   for (auto I = Registers.begin(), E = Registers.end(); I != E; ++I)

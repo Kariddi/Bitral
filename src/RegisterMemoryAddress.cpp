@@ -7,13 +7,13 @@ using namespace Bitral;
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg) : 
                                                                       Base(base_reg), Index(NULL), 
-                                                                      Scale(context.getImmediate(0,0)),
-                                                                      Displacement(context.getImmediate(0,0)) {}
+                                                                      Scale(Immediate(context,0,0)),
+                                                                      Displacement(Immediate(context,0,0)) {}
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, 
                                              Register* index, const Immediate& scale) : 
                                              Base(base_reg), Index(index),
-                                             Scale(scale), Displacement(context.getImmediate(0,0)) {}
+                                             Scale(scale), Displacement(Immediate(context,0,0)) {}
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, Register* index, 
                                                                      const Immediate& scale, 
@@ -23,7 +23,7 @@ RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* b
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, 
                                              const Immediate& displacement) : Base(base_reg), Index(NULL), 
-                                                                        Scale(context.getImmediate(0,0)),
+                                                                        Scale(Immediate(context,0,0)),
                                                                         Displacement(displacement) {}
 
 std::uint16_t RegisterMemoryAddress::getBitSize() {

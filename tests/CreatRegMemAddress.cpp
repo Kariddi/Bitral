@@ -11,15 +11,15 @@ int main() {
 
   BitralContext b;
 
-  Register* reg = b.addRegister(32, 0);
-  Register* index = b.addRegister(16, 1);
-  RegisterMemoryAddress RegAddr = b.getRegisterMemoryAddress(reg);
+  Register* reg = b.addRegister(32, "A");
+  Register* index = b.addRegister(16, "B");
+  RegisterMemoryAddress RegAddr(b,reg);
   assert(RegAddr.getBitSize() == 32);
-  RegAddr = b.getRegisterMemoryAddress(reg, index, b.getImmediate(16, 4), b.getImmediate(32, 1000));
+  RegAddr = RegisterMemoryAddress(b,reg, index, Immediate(b,16, 4), Immediate(b,32, 1000));
   assert(RegAddr.getBitSize() == 32);
-  RegAddr = b.getRegisterMemoryAddress(reg, index, b.getImmediate(80, 4));
+  RegAddr = RegisterMemoryAddress(b,reg, index, Immediate(b,80, 4));
   assert(RegAddr.getBitSize() == 80);
-  RegAddr = b.getRegisterMemoryAddress(reg, b.getImmediate(64, 1000));
+  RegAddr = RegisterMemoryAddress(b,reg, Immediate(b,64, 1000));
   assert(RegAddr.getBitSize() == 64);
 
   return 0;

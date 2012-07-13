@@ -41,5 +41,8 @@ typedef struct BitralRegisters {
 
 typedef void(*RecompileFunction)();
 
+enum Opcodes { LD, ST, ADD, ADDI, SUB, SUBI, MUL, MULI, DIV, DIVI, CMP, CMPI,
+               MOV, MOVI, OR, ORI, XOR, XORI, AND, ANDI, TEST, TESTI, BRE, BRLE,
+               BRL, BRG, BRGE, BR, HLT, NOP };
 
 #endif

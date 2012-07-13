@@ -12,7 +12,7 @@ class RegisterMemoryAddress : public MemoryAddress {
   Immediate Displacement;
   friend class BitralContext;
 
-protected:
+public:
   RegisterMemoryAddress(BitralContext& context, Register* base_reg);
 
   RegisterMemoryAddress(BitralContext& context, Register* base_reg, Register* index, const Immediate& scale);
@@ -20,7 +20,6 @@ protected:
                         const Immediate& scale, const Immediate& displacement);
   RegisterMemoryAddress(BitralContext& context, Register* base_reg, const Immediate& displacement);
 
-public:
   virtual std::uint16_t getBitSize();
 };
 

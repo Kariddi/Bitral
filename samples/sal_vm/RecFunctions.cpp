@@ -34,18 +34,33 @@ void recADD() {
 }
 
 void recADDI() {
+  Bitral::Register* reg = BContext.getRegister(REG_ONLY);
+
+  Region->createAdd(reg, reg, &Bitral::Immediate(BContext, 16, IMMEDIATE));
 }
 
 void recCMPI() {
+  Bitral::Register* reg = BContext.getRegister(REG_ONLY);
+  Bitral::Register* status = BContext.getRegister(REG_STATUS);
 
+  Bitral::CompareRes cmp_res(Region->createCompare(reg, &Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Region->createConditionalOr(cmp_res, CompareRes::LESS, status, &Bitral::Immediate(BContext, 32, 1), &Bitral::Immediate(BContext, 32, 0));
+  Region->createConditionalOr(cmp_res, CompareRes::EQUAL, status, &Bitral::Immediate(BContext, 32, 2), &Bitral::Immediate(BContext, 32, 0));
 }
 
 void recMOVI() {
+  Bitral::Register* reg = BContext.getRegister(REG_ONLY);
+
+  Region->createMov(reg, &Bitral::Immediate(BContext, 16, IMMEDIATE));
 
 }
 
 void recBRLE() {
-
+  Bitral::Register* status = BContext.getRegister(REG_STATUS);
+  Bitral::Temporary temp(BContext, 16, 0);
+  Region->createOr(&temp, status, &Bitral::Immediate(BContext, 32, 3));
+  Bitral::CompareRes cmp_res(Region->createMoreThanCompare(&temp, &Bitral::Immediate(BContext, 32, 0)));
+  Region->createConditionalBranch(cmp_res, &Bitral::Immediate(BContext, 16, IMMEDIATE));
 }
 
 void recHLT() {

@@ -12,10 +12,13 @@ int main() {
   BitralContext b;
 
   Register* Reg = b.addRegister(32, "EBX");
+  Register* SubReg = b.addSubRegister(Reg, Register::Interval(0,15), "BX");
 
   Register* Find = b.getRegister("EBX");
+  Register* SubFind = b.getRegister("BX");
 
   assert(Reg == Find);
+  assert(SubReg == SubFind);
 
   return 0;
 

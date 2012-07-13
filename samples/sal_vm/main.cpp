@@ -8,10 +8,6 @@
 #define OPCODE_NUM 30
 #define OPCODE (opcode >> 24) & 0xff
 
-enum Opcodes { LD, ST, ADD, ADDI, SUB, SUBI, MUL, MULI, DIV, DIVI, CMP, CMPI,
-               MOV, MOVI, OR, ORI, XOR, XORI, AND, ANDI, TEST, TESTI, BRE, BRLE,
-               BRL, BRG, BRGE, BR, HLT, NOP };
-
 RecompileFunction recompile_routines[OPCODE_NUM];
 
 void initRoutines() {
@@ -40,15 +36,15 @@ Bitral::CodeRegion* Region;
 
 void initBitralData(Bitral::BitralContext &b) {
 
-  BitralRegs.A = b.addRegister(32, REG_A, &Regs[REG_A]);
-  BitralRegs.B = b.addRegister(32, REG_B, &Regs[REG_B]);
-  BitralRegs.C = b.addRegister(32, REG_C, &Regs[REG_C]);
-  BitralRegs.D = b.addRegister(32, REG_D, &Regs[REG_D]);
-  BitralRegs.E = b.addRegister(32, REG_E, &Regs[REG_E]);
-  BitralRegs.F = b.addRegister(32, REG_F, &Regs[REG_F]);
-  BitralRegs.SP = b.addRegister(32, REG_SP, &Regs[REG_SP]);
-  BitralRegs.PC = b.addRegister(32, REG_PC, &Regs[REG_PC]);
-  BitralRegs.STATUS = b.addRegister(32, REG_STATUS, &Regs[REG_STATUS]);
+  BitralRegs.A = b.addRegister(32, "A", &Regs[REG_A]);
+  BitralRegs.B = b.addRegister(32, "B", &Regs[REG_B]);
+  BitralRegs.C = b.addRegister(32, "C", &Regs[REG_C]);
+  BitralRegs.D = b.addRegister(32, "D", &Regs[REG_D]);
+  BitralRegs.E = b.addRegister(32, "E", &Regs[REG_E]);
+  BitralRegs.F = b.addRegister(32, "F", &Regs[REG_F]);
+  BitralRegs.SP = b.addRegister(32, "SP", &Regs[REG_SP]);
+  BitralRegs.PC = b.addRegister(32, "PC", &Regs[REG_PC]);
+  BitralRegs.STATUS = b.addRegister(32, "STATUS", &Regs[REG_STATUS]);
   b.setMemorySpace(Mem.mem8);
 }
 

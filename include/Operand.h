@@ -10,9 +10,9 @@ protected:
   std::uint16_t BitSize;
   llvm::Value* OperandValue;
 
+  Operand(std::uint16_t bit_size, llvm::Value* op_value) : BitSize(bit_size), OperandValue(op_value) {}
 public:
   std::uint16_t getBitSize() { return BitSize; }
-  Operand(std::uint16_t bit_size, llvm::Value* op_value) : BitSize(bit_size), OperandValue(op_value) {}
   //virtual void add(Operand* addend) = 0;
   //virtual Comparison* compare(Operand* op) = 0;
   //virtual void subtract(Operand* addend) = 0;

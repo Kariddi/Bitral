@@ -21,11 +21,11 @@ class ConstantMemoryAddress : public MemoryAddress {
 Immediate ImmediateValue;
   friend class BitralContext;
 
-protected:
+public:
   ConstantMemoryAddress(const Immediate& immediate) : ImmediateValue(immediate) {}
   
   // ConstantMemoryAddress(const BitralContext& Context, std::uint16_t bit_size, ArrayRef<std::uint64_t> address) : Address(bit_size, address) {}
-public:
+
   virtual std::uint16_t getBitSize();
 };
 
