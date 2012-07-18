@@ -10,9 +10,9 @@ class BitralContext;
 
 class Immediate : public Operand {
 
-  friend class BitralContext;
+//  friend class BitralContext;
 public:
-  Immediate(BitralContext& context, std::uint16_t bit_size, std::uint64_t value); 
+  Immediate(BitralContext& context, boost::uint16_t bit_size, boost::uint64_t value); 
 };
 
 }

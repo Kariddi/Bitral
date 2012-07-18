@@ -11,4 +11,4 @@ using namespace Bitral;
 //                                             llvm::ConstantInt::get(llvm::IntegerType::get(context, 
 //                                             bit_size), address)), Address(address) {}
 
-std::uint16_t ConstantMemoryAddress::getBitSize() { return ImmediateValue.getBitSize(); }
+boost::uint16_t ConstantMemoryAddress::getBitSize() { return ImmediateValue.getBitSize(); }

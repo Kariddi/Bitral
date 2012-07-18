@@ -6,13 +6,24 @@
 namespace Bitral {
 
 class Operand {
-protected:
-  std::uint16_t BitSize;
-  llvm::Value* OperandValue;
-
-  Operand(std::uint16_t bit_size, llvm::Value* op_value) : BitSize(bit_size), OperandValue(op_value) {}
 public:
-  std::uint16_t getBitSize() { return BitSize; }
+  typedef boost::uint32_t IdType;
+private:
+  static IdType NextId;
+
+protected:
+  boost::uint16_t BitSize;
+  llvm::Value* OperandValue;
+  boost::uint32_t UniqueID;
+
+  Operand(boost::uint16_t bit_size, llvm::Value* op_value) : BitSize(bit_size), OperandValue(op_value) {
+    UniqueID = NextId++;
+  }
+public:
+  boost::uint16_t getBitSize() const { return BitSize; }
+  llvm::Value* getValue() const { return OperandValue; }
+  IdType getID() const { return UniqueID; }
+  virtual ~Operand() { }
   //virtual void add(Operand* addend) = 0;
   //virtual Comparison* compare(Operand* op) = 0;
   //virtual void subtract(Operand* addend) = 0;

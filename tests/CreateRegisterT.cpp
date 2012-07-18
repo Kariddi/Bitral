@@ -11,7 +11,7 @@ int main() {
 
   BitralContext b;
 
-  Register* Reg = b.addRegister(32, "EBX");
+  Register* Reg = b.addRegister(32, "EBX", NULL);
 
   Register* Find = b.getRegister("EBX");
 

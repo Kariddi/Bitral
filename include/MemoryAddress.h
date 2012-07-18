@@ -10,7 +10,9 @@ class MemoryAddress {
 protected:
   //MemoryAddress(std::uint16_t bit_size, llvm::Value* op_value) : Operand(bit_size, op_value) {}
 
-  virtual std::uint16_t getBitSize() = 0;
+  virtual boost::uint16_t getBitSize() = 0;
+public:
+  virtual ~MemoryAddress() {}
 };
 
 }

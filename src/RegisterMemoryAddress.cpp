@@ -26,7 +26,7 @@ RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* b
                                                                         Scale(Immediate(context,0,0)),
                                                                         Displacement(displacement) {}
 
-std::uint16_t RegisterMemoryAddress::getBitSize() {
+boost::uint16_t RegisterMemoryAddress::getBitSize() {
     if (Index != NULL) {
       return std::max(Base->getBitSize(), std::max(Index->getBitSize(), 
                       std::max(Scale.getBitSize(), Displacement.getBitSize())));

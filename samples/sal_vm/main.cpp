@@ -1,12 +1,13 @@
 #include <RecFunctions.h>
 #include <iostream>
 #include <fstream>
+#include <boost/unordered_map.hpp>
 #include <RegisterCodes.h>
 #include <Globals.h>
 #include <BitralContext.h>
 
 #define OPCODE_NUM 30
-#define OPCODE (opcode >> 24) & 0xff
+#define OPCODE ((opcode >> 24) & 0xff)
 
 RecompileFunction recompile_routines[OPCODE_NUM];
 
@@ -30,22 +31,33 @@ Memory Mem;
 
 Bitral::BitralContext BContext;
 
-uint32_t opcode;
+boost::uint32_t opcode;
 
 Bitral::CodeRegion* Region;
+
+boost::unordered_map<RegisterCodes, std::string> CodeNameMap; 
 
 void initBitralData(Bitral::BitralContext &b) {
 
   BitralRegs.A = b.addRegister(32, "A", &Regs[REG_A]);
+  CodeNameMap[REG_A] = "A";
   BitralRegs.B = b.addRegister(32, "B", &Regs[REG_B]);
+  CodeNameMap[REG_B] = "B";
   BitralRegs.C = b.addRegister(32, "C", &Regs[REG_C]);
+  CodeNameMap[REG_C] = "C";
   BitralRegs.D = b.addRegister(32, "D", &Regs[REG_D]);
+  CodeNameMap[REG_D] = "D";
   BitralRegs.E = b.addRegister(32, "E", &Regs[REG_E]);
+  CodeNameMap[REG_E] = "E";
   BitralRegs.F = b.addRegister(32, "F", &Regs[REG_F]);
+  CodeNameMap[REG_F] = "F";
   BitralRegs.SP = b.addRegister(32, "SP", &Regs[REG_SP]);
+  CodeNameMap[REG_SP] = "SP";
   BitralRegs.PC = b.addRegister(32, "PC", &Regs[REG_PC]);
+  CodeNameMap[REG_PC] = "PC";
   BitralRegs.STATUS = b.addRegister(32, "STATUS", &Regs[REG_STATUS]);
-  b.setMemorySpace(Mem.mem8);
+  CodeNameMap[REG_STATUS] = "STATUS";
+  b.setMemorySpace(Mem.mem8, sizeof(Mem));
 }
 
 int main(int argc, char** argv) {

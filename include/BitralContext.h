@@ -2,54 +2,54 @@
 #define __BITRAL_BITRALCONTEXT_H__
 
 #include <string>
-#include <unordered_map>
+#include <cstring>
+#include <boost/unordered_map.hpp>
 #include <llvm/LLVMContext.h>
-#include <Register.h>
-#include <CodeRegion.h>
+#include <llvm/GlobalValue.h>
+#include <llvm/Module.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/ExecutionEngine/JIT.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <ConstantMemoryAddress.h>
 #include <RegisterMemoryAddress.h>
+#include <Register.h>
+#include <CompilerState.h>
 #include <BitralConfig.h>
 
 namespace Bitral {
 
-class BitralContext {
+class CodeRegion;
+class Register;
 
-typedef std::unordered_map<std::string, Register*> RegisterMap;
-typedef RegisterMap::iterator RegisterMapIterator;
-typedef RegisterMap::const_iterator RegisterMapConstIterator;
-typedef std::unordered_map<std::uint64_t, CodeRegion*> CodeRegionMap;
-typedef CodeRegionMap::iterator CodeRegionMapIterator;
-typedef CodeRegionMap::const_iterator CodeRegionMapConstIterator;
+class BitralContext {
+  typedef boost::unordered_map<std::string, Register*> RegisterMap;
+  typedef RegisterMap::iterator RegisterMapIterator;
+  typedef RegisterMap::const_iterator RegisterMapConstIterator;
+  typedef boost::unordered_map<MemoryPtr, CodeRegion*> CodeRegionMap;
+  typedef CodeRegionMap::iterator CodeRegionMapIterator;
+  typedef CodeRegionMap::const_iterator CodeRegionMapConstIterator;
 
   RegisterMap Registers;
+  CodeRegionMap CodeRegions;
+/*  llvm::LLVMContext& LLVMCtx;
+  llvm::Module* Module;
+  llvm::ExecutionEngine* ExecEngine;*/
+  CompilerState CompState;
+//  llvm::GlobalValue* MemorySpace;
 
 public:
-  llvm::LLVMContext LLVMCtx;
-  CodeRegion* createNewCodeRegion(const ConstantMemoryAddress& starting_address);
-  Register* addRegister(std::uint16_t bit_size, const std::string& name);
-  Register* addRegister(std::uint16_t bit_size, const std::string& name, const void* memory_map_location);
+  RegisterMapIterator reg_begin() { return Registers.begin(); }
+  RegisterMapIterator reg_end() { return Registers.end(); }
+  CodeRegion* createNewCodeRegion(MemoryPtr starting_address);
+  void setMemorySpace(void* memory, boost::uint64_t size);
+  llvm::GlobalValue* getMemorySpace();
+//  Register* addRegister(boost::uint16_t bit_size, const std::string& name);
+  Register* addRegister(boost::uint16_t bit_size, const std::string& name, void* memory_map_location);
   Register* getRegister(const std::string& name) const;
   Register* addSubRegister(Register* base, Register::Interval intv, const std::string& name);
-  //Register* getSubRegister(const std::string& name) const;
-
-//  ConstantMemoryAddress getConstantMemoryAddress(std::uint16_t bit_size, std::uint64_t address);
-/*  Immediate getImmediate(std::uint16_t bit_size, std::uint64_t value) { 
-    return Immediate(LLVMCtx, bit_size, value); 
-  }
-  ConstantMemoryAddress getConstantMemoryAddress(const Immediate& immediate);
-  RegisterMemoryAddress getRegisterMemoryAddress(Register* base_reg) {
-    return RegisterMemoryAddress(*this, base_reg);
-  }
-  RegisterMemoryAddress getRegisterMemoryAddress(Register* base_reg, Register* index, const Immediate& scale) {
-    return RegisterMemoryAddress(*this, base_reg, index, scale);
-  }
-  RegisterMemoryAddress getRegisterMemoryAddress(Register* base_reg, Register* index, 
-                                                 const Immediate& scale, const Immediate& displacement) {
-    return RegisterMemoryAddress(*this, base_reg, index, scale, displacement);
-  }
-  RegisterMemoryAddress getRegisterMemoryAddress(Register* base_reg, const Immediate& displacement) {
-    return RegisterMemoryAddress(*this, base_reg, displacement);
-  }*/
+  void addMapping(llvm::GlobalVariable* GV, void* address);
+  BitralContext();
   ~BitralContext(); 
 };
 

@@ -26,7 +26,7 @@ public:
   
   // ConstantMemoryAddress(const BitralContext& Context, std::uint16_t bit_size, ArrayRef<std::uint64_t> address) : Address(bit_size, address) {}
 
-  virtual std::uint16_t getBitSize();
+  virtual boost::uint16_t getBitSize();
 };
 
 }

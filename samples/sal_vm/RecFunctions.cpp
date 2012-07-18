@@ -12,58 +12,65 @@ extern Bitral::BitralContext BContext;
 
 void recST() {
 
-  std::uint8_t origin_reg = REG_1;
-  std::uint8_t address_reg = REG_2;
+  boost::uint8_t origin_reg = REG_1;
+  boost::uint8_t address_reg = REG_2;
   
-  Bitral::Register* o_reg = BContext.getRegister(origin_reg);
-  Bitral::Register* a_reg = BContext.getMemoryOperand(a_reg);
+  Bitral::Register* o_reg = BContext.getRegister(*CodeNameMap.find(origin_reg));
+  Bitral::RegisterMemoryAddress a_reg(address_reg);
 
   Region->createStore(o_reg, a_reg);
+  Region->increaseMemoryPosition(4);
   //BContext.getMemory()
 
 }
 
 void recADD() {
-  std::uint8_t reg_1 = REG_1;
-  std::uint8_t reg_2 = REG_2;
+  boost::uint8_t reg_1 = REG_1;
+  boost::uint8_t reg_2 = REG_2;
   
-  Bitral::Register* reg = BContext.getRegister(reg_1);
-  Bitral::Register* reg2 = BContext.getRegister(reg_2);
+  Bitral::Register* reg = BContext.getRegister(*CodeNameMap.find(reg_1));
+  Bitral::Register* reg2 = BContext.getRegister(*CodeNameMap.find(reg_2));
 
   Region->createAdd(reg, reg2, reg);
+  Region->increaseMemoryPosition(4);
 }
 
 void recADDI() {
-  Bitral::Register* reg = BContext.getRegister(REG_ONLY);
+  Bitral::Register* reg = BContext.getRegister(*CodeNameMap.find(REG_ONLY));
 
-  Region->createAdd(reg, reg, &Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Region->createAdd(reg, reg, Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Region->increaseMemoryPosition(4);
 }
 
 void recCMPI() {
-  Bitral::Register* reg = BContext.getRegister(REG_ONLY);
-  Bitral::Register* status = BContext.getRegister(REG_STATUS);
+  Bitral::Register* reg = BContext.getRegister(*CodeNameMap.find(REG_ONLY));
+  Bitral::Register* status = BContext.getRegister(*CodeNameMap.find(REG_STATUS));
 
-  Bitral::CompareRes cmp_res(Region->createCompare(reg, &Bitral::Immediate(BContext, 16, IMMEDIATE));
-  Region->createConditionalOr(cmp_res, CompareRes::LESS, status, &Bitral::Immediate(BContext, 32, 1), &Bitral::Immediate(BContext, 32, 0));
-  Region->createConditionalOr(cmp_res, CompareRes::EQUAL, status, &Bitral::Immediate(BContext, 32, 2), &Bitral::Immediate(BContext, 32, 0));
+  Bitral::CompareRes cmp_res(Region->createCompare(reg, Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Region->createConditionalOr(cmp_res, CompareRes::LESS, status, Bitral::Immediate(BContext, 32, 1), Bitral::Immediate(BContext, 32, 0));
+  Region->createConditionalOr(cmp_res, CompareRes::EQUAL, status, Bitral::Immediate(BContext, 32, 2), Bitral::Immediate(BContext, 32, 0));
+  Region->increaseMemoryPosition(4);
 }
 
 void recMOVI() {
-  Bitral::Register* reg = BContext.getRegister(REG_ONLY);
+  Bitral::Register* reg = BContext.getRegister(*CodeNameMap.find(REG_ONLY));
 
-  Region->createMov(reg, &Bitral::Immediate(BContext, 16, IMMEDIATE));
-
+  Region->createMov(reg, Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Region->increaseMemoryPosition(4);
 }
 
 void recBRLE() {
-  Bitral::Register* status = BContext.getRegister(REG_STATUS);
+  Bitral::Register* status = BContext.getRegister(*CodeNameMap.find(REG_STATUS));
   Bitral::Temporary temp(BContext, 16, 0);
-  Region->createOr(&temp, status, &Bitral::Immediate(BContext, 32, 3));
-  Bitral::CompareRes cmp_res(Region->createMoreThanCompare(&temp, &Bitral::Immediate(BContext, 32, 0)));
-  Region->createConditionalBranch(cmp_res, &Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Region->createOr(&temp, status, Bitral::Immediate(BContext, 32, 3));
+  Bitral::CompareRes cmp_res(Region->createMoreThanCompare(&temp, Bitral::Immediate(BContext, 32, 0)));
+  Region->createConditionalBranch(cmp_res, Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Region->increaseMemoryPosition(4);
 }
 
 void recHLT() {
+
+  Region->increaseMemoryPosition(4);
 
 }
 

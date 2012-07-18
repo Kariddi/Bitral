@@ -4,7 +4,7 @@
 #include <fstream>
 #include <cctype>
 #include <cstdio>
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
 
 using namespace std;
 
@@ -18,14 +18,15 @@ int value;
 ifstream inputf;
 ofstream outputf;
 sal_tokens current_token;
-unordered_map<string, sal_tokens> opcode_map;
-unordered_map<string, sal_tokens> reg_map;
-
+boost::unordered_map<string, sal_tokens> opcode_map;
+boost::unordered_map<string, sal_tokens> reg_map;
+typedef boost::unordered_map<string, sal_tokens>::iterator opcode_map_it; 
+typedef boost::unordered_map<string, sal_tokens>::iterator reg_map_it;  
 //stringstream sbf;
 
 static void initLexer() {
-  opcode_map.reserve(NOP+1);
-  reg_map.reserve(NO_REC_TOK-REG_A_TOK);
+  //opcode_map.reserve(NOP+1);
+  //reg_map.reserve(NO_REC_TOK-REG_A_TOK);
 
   opcode_map["LD"] = LD;
   opcode_map["ST"] = ST;
@@ -100,7 +101,7 @@ static sal_tokens lexer() {
         inputf.unget();
  
       str_read = ss.str();
-      auto token_iterator = reg_map.find(str_read);
+      reg_map_it token_iterator = reg_map.find(str_read);
       if (token_iterator != reg_map.end())
         return token_iterator->second;
       else {
@@ -119,7 +120,7 @@ static sal_tokens lexer() {
         inputf.unget();
   
       str_read = ss.str();
-      auto token_iterator = opcode_map.find(str_read);
+      opcode_map_it token_iterator = opcode_map.find(str_read);
       if (token_iterator != opcode_map.end())
         return token_iterator->second;
       else {

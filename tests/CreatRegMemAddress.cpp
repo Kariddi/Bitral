@@ -11,8 +11,9 @@ int main() {
 
   BitralContext b;
 
-  Register* reg = b.addRegister(32, "A");
-  Register* index = b.addRegister(16, "B");
+  Register* reg = b.addRegister(32, "A", NULL);
+  Register* index = b.addRegister(16, "B", NULL);
+  assert(reg->getID() != index->getID());
   RegisterMemoryAddress RegAddr(b,reg);
   assert(RegAddr.getBitSize() == 32);
   RegAddr = RegisterMemoryAddress(b,reg, index, Immediate(b,16, 4), Immediate(b,32, 1000));
