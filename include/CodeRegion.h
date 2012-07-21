@@ -21,7 +21,7 @@ class CompilerState;
 class CodeRegion {
   friend class BitralContext;
   typedef std::vector<llvm::BasicBlock*> InstructionVector;
-  typedef boost::unordered_map<MemoryPtr, InstructionVector*> InstructionMap;
+  typedef boost::unordered_map<ConstantMemoryAddress, InstructionVector*> InstructionMap;
   typedef InstructionMap::iterator InstructionMapIterator;
 public:
 //  typedef std::unordered_map<Operand::IdType, DestinationOperand*> DestOpMap;
@@ -45,7 +45,7 @@ private:
 */
 //  typedef std::unordered_map<MemoryPtr, BranchTargets*> BranchMap;
 
-  MemoryPtr CurrentPos;
+  ConstantMemoryAddress CurrentPos;
   llvm::Function* RegionFunc;
   llvm::BasicBlock* PreviousBB;
   llvm::IRBuilder<> Builder;
@@ -65,14 +65,14 @@ private:
   //DestinationOperand* getUpdateDst(DestinationOperand* dst);
   //const Operand* getSource(const Operand* src);
   //void advanceBranch();
-  CodeRegion(CompilerState& c_state, MemoryPtr initial_pos);
+  CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos);
 public:
   typedef void(*CodePointer)();
   ~CodeRegion();
-//  bool setMemoryPosition(MemoryPtr new_pos);
+  bool setMemoryPosition(ConstantMemoryAddress new_pos);
   bool increaseMemoryPosition(boost::int16_t delta);
 //ACTIONS
-  void createXOR(const Operand* src, DestinationOperand* dst);
+  void createXOR(const Operand& src, DestinationOperand* dst);
   void closeRegion();
   CodePointer compile(); 
 

@@ -6,4 +6,6 @@ using namespace Bitral;
 
 Immediate::Immediate(BitralContext& context, boost::uint16_t bit_size, boost::uint64_t value) : Operand(bit_size, 
                                                                   llvm::ConstantInt::get(
-                                                                  llvm::IntegerType::get(llvm::getGlobalContext(),                                                                  bit_size), value)) {}
+                                                                  llvm::IntegerType::get(
+                                                                        context.getCompilerContext(),
+                                                                        bit_size), value)) {}

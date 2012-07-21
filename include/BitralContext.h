@@ -26,7 +26,7 @@ class BitralContext {
   typedef boost::unordered_map<std::string, Register*> RegisterMap;
   typedef RegisterMap::iterator RegisterMapIterator;
   typedef RegisterMap::const_iterator RegisterMapConstIterator;
-  typedef boost::unordered_map<MemoryPtr, CodeRegion*> CodeRegionMap;
+  typedef boost::unordered_map<ConstantMemoryAddress, CodeRegion*> CodeRegionMap;
   typedef CodeRegionMap::iterator CodeRegionMapIterator;
   typedef CodeRegionMap::const_iterator CodeRegionMapConstIterator;
 
@@ -41,7 +41,7 @@ class BitralContext {
 public:
   RegisterMapIterator reg_begin() { return Registers.begin(); }
   RegisterMapIterator reg_end() { return Registers.end(); }
-  CodeRegion* createNewCodeRegion(MemoryPtr starting_address);
+  CodeRegion* createNewCodeRegion(ConstantMemoryAddress starting_address);
   void setMemorySpace(void* memory, boost::uint64_t size);
   llvm::GlobalValue* getMemorySpace();
 //  Register* addRegister(boost::uint16_t bit_size, const std::string& name);
@@ -49,6 +49,7 @@ public:
   Register* getRegister(const std::string& name) const;
   Register* addSubRegister(Register* base, Register::Interval intv, const std::string& name);
   void addMapping(llvm::GlobalVariable* GV, void* address);
+  llvm::LLVMContext& getCompilerContext() { return CompState.LLVMCtx; }
   BitralContext();
   ~BitralContext(); 
 };

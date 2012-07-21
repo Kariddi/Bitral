@@ -3,7 +3,7 @@
 
 using namespace Bitral;
 
-CodeRegion* BitralContext::createNewCodeRegion(MemoryPtr starting_address) {
+CodeRegion* BitralContext::createNewCodeRegion(ConstantMemoryAddress starting_address) {
   CodeRegionMapIterator MapIt = CodeRegions.find(starting_address);
   if (CodeRegions.find(starting_address) != CodeRegions.end())
     return MapIt->second;

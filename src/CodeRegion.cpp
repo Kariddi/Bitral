@@ -61,7 +61,7 @@ void CodeRegion::advanceBranch() {
   BranchesSet->insert(CurrentBB);
 }*/
 
-CodeRegion::CodeRegion(CompilerState& c_state, MemoryPtr initial_pos) : 
+CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos) : 
                        CurrentPos(initial_pos), Builder(c_state.LLVMCtx), CompState(c_state), 
                        CurrentVector(new InstructionVector()) {
 
@@ -89,18 +89,20 @@ CodeRegion::~CodeRegion() {
 */
 }
 
-/*
-bool CodeRegion::setMemoryPosition(MemoryPtr new_pos) {
+
+bool CodeRegion::setMemoryPosition(ConstantMemoryAddress new_pos) {
   CurrentPos = new_pos;
-  if (InstructionMap.find(new_pos) != InstructionMap.end()) {
-    CurrentVector = *InstructionMap.find(new_pos);
+  InstructionMapIterator MapIt = AddressToInstructions.find(CurrentPos);
+  PreviousBB = CurrentVector->back();
+  if (MapIt != AddressToInstructions.end()) {
+    CurrentVector = MapIt->second;
     return false;
   }
-  //advanceBranch(CurrentVector->back());
   CurrentVector = new InstructionVector();
-  InstructionMap[CurrentPos] = CurrentVector;
+  AddressToInstructions[CurrentPos] = CurrentVector;
   return true;
-}*/
+
+}
 
 //Return true if instructions can be added at this position
 bool CodeRegion::increaseMemoryPosition(boost::int16_t delta) {
@@ -116,14 +118,14 @@ bool CodeRegion::increaseMemoryPosition(boost::int16_t delta) {
   return true;
 }
 
-void CodeRegion::createXOR(const Operand* src, DestinationOperand* dst) {
+void CodeRegion::createXOR(const Operand& src, DestinationOperand* dst) {
   llvm::BasicBlock* NewBB = advanceBB();
   Builder.SetInsertPoint(NewBB);
   CurrentVector->push_back(NewBB);
   if (dst->isMemoryStored())
     static_cast<MemoryStoredOperand*>(dst)->generateLoadingCode(Builder);
-  llvm::Value* SrcVal = readOperand(src);
-  llvm::Value* val = Builder.CreateXor(readOperand(src), readOperand(dst));
+  llvm::Value* SrcVal = readOperand(&src);
+  llvm::Value* val = Builder.CreateXor(readOperand(&src), readOperand(dst));
   //CurrentVector->push_back(val);
   writeOperand(dst, val);
   if (dst->isMemoryStored())

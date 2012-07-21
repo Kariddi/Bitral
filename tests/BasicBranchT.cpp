@@ -1,6 +1,6 @@
 #include <BitralContext.h>
 #include <iostream>
-#include <RegisterMemoryAddress.h>
+#include <ConstantMemoryAddress.h>
 #include <CodeRegion.h>
 #include <cassert>
 #undef NDEBUG
@@ -9,6 +9,7 @@
 using namespace Bitral;
 
 boost::uint32_t reg_var = 100;
+boost::uint32_t reg_var2 = 200;
 boost::uint8_t mem[100];
 
 int main() {
@@ -17,9 +18,14 @@ int main() {
 
   Register* reg = b.addRegister(32, "A", &reg_var);
   b.setMemorySpace(mem, sizeof(mem));
-  CodeRegion* Region = b.createNewCodeRegion(ConstantMemoryAddress(Immediate(b, 32, 0)));
+  CodeRegion* Region = b.createNewCodeRegion(0);
+  BranchCondition Condition = BranchCondition::TRUE;
+  ConstantMemoryAddress branch_trgt = Region->createOffsetBranch(8, Condition);
   Region->increaseMemoryPosition(4);
-  Region->createXOR(*reg, reg);
+  Region->createMove(&Immediate(b, 32, 1), reg);
+  Region->setMemoryPosition(branch_trgt);
+  Region->createMove(&Immediate(b, 32, 0), reg);
+  
   Region->closeRegion();
 
   CodeRegion::CodePointer Code = Region->compile(); 
