@@ -28,7 +28,7 @@ llvm::BasicBlock* CodeRegion::advanceBB() {
     OldBB = CurrentVector->back();*/
   llvm::BasicBlock* BB = llvm::BasicBlock::Create(CompState.LLVMCtx, "", RegionFunc);
   llvm::BranchInst::Create(BB, PreviousBB);
-  CurrentVector->push_back(BB);
+  CurrentVector->push_back(new InstructionBlock(BB, CurrentPos));
   PreviousBB = BB;
 
   return BB;
@@ -95,13 +95,16 @@ CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos
 //Entry BB Creation
   llvm::BasicBlock* BB = llvm::BasicBlock::Create(CompState.LLVMCtx, "", RegionFunc);
   Builder.SetInsertPoint(BB);
-  CurrentVector->push_back(BB);
+  CurrentVector->push_back(new InstructionBlock(BB, initial_pos));
 }
 
 CodeRegion::~CodeRegion() {
 
- for (InstructionMapIterator I = AddressToInstructions.begin(), E = AddressToInstructions.end(); I != E; ++I)
-   delete I->second;
+  for (InstructionMapIterator I = AddressToInstructions.begin(), E = AddressToInstructions.end(); I != E; ++I) {
+    for (InstructionVectorIterator I2 = I->second->begin(), E2 = I->second->end(); I2 != E2; ++I2)
+      delete *I2;
+    delete I->second;
+  }
 /*
  for (auto I = Branches.begin(), E = Branches.end(); I != E; ++I)
    delete I->second;
@@ -112,7 +115,7 @@ CodeRegion::~CodeRegion() {
 bool CodeRegion::setMemoryPosition(ConstantMemoryAddress new_pos) {
   CurrentPos = new_pos;
   InstructionMapIterator MapIt = AddressToInstructions.find(CurrentPos);
-  PreviousBB = CurrentVector->back();
+  PreviousBB = CurrentVector->back()->Block;
   if (MapIt != AddressToInstructions.end()) {
     CurrentVector = MapIt->second;
     return false;
@@ -127,7 +130,7 @@ bool CodeRegion::setMemoryPosition(ConstantMemoryAddress new_pos) {
 bool CodeRegion::increaseMemoryPosition(boost::int16_t delta) {
   CurrentPos += delta;
   InstructionMapIterator MapIt = AddressToInstructions.find(CurrentPos);
-  PreviousBB = CurrentVector->back();
+  PreviousBB = CurrentVector->back()->Block;
   if (MapIt != AddressToInstructions.end()) {
     CurrentVector = MapIt->second;
     return false;
@@ -140,7 +143,7 @@ bool CodeRegion::increaseMemoryPosition(boost::int16_t delta) {
 void CodeRegion::createXOR(const Operand& src, DestinationOperand* dst) {
   llvm::BasicBlock* NewBB = advanceBB();
   Builder.SetInsertPoint(NewBB);
-  CurrentVector->push_back(NewBB);
+  CurrentVector->push_back(new InstructionBlock(NewBB, CurrentPos));
   if (dst->isMemoryStored())
     static_cast<MemoryStoredOperand*>(dst)->generateLoadingCode(Builder);
   llvm::Value* SrcVal = readOperand(&src);

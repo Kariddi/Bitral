@@ -38,8 +38,8 @@ int main() {
   Register* reg = b.addRegister(32, "A", &reg_var);
   b.setMemorySpace(mem, sizeof(mem));
   CodeRegion* Region = b.createNewCodeRegion(0);
-  BranchCondition Condition = BranchCondition::TRUE;
-  ConstantMemoryAddress branch_trgt = Region->createOffsetBranch(8, Condition);
+  //ComparisonResult Condition = BranchCondition::TRUE;
+  ConstantMemoryAddress branch_trgt = Region->createOffsetBranch(8);
   Region->increaseMemoryPosition(4);
   Region->createMove(&Immediate(b, 32, 1), reg);
   Region->setMemoryPosition(branch_trgt);

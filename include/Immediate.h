@@ -52,16 +52,15 @@ public:
 
 namespace boost {
 template<>
-class boost::hash<Bitral::Immediate> : public std::unary_function<Bitral::Immediate, std::size_t> {
-public:
+struct hash<Bitral::Immediate> : public std::unary_function<Bitral::Immediate, std::size_t> {
   std::size_t operator()(const Bitral::Immediate& imm) const {
     const llvm::APInt& ap_int = llvm::dyn_cast<llvm::ConstantInt>(imm.OperandValue)->getValue();
-    const boost::uint64_t* raw = reinterpret_cast<const boost::uint64_t*>(ap_int.getRawData());
-    boost::uint64_t sum = raw[0];
+    const uint64_t* raw = reinterpret_cast<const uint64_t*>(ap_int.getRawData());
+    uint64_t sum = raw[0];
     int word_num = ap_int.getNumWords();
     for (int i = 1; i < word_num; ++i)
       sum += raw[i];
-    return boost::hash<boost::uint64_t>()(sum);
+    return hash<uint64_t>()(sum);
   }
 };
 }

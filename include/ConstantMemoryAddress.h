@@ -60,11 +60,11 @@ public:
 
 namespace boost {
 template<>
-class boost::hash<Bitral::ConstantMemoryAddress> :
+class hash<Bitral::ConstantMemoryAddress> :
                            public std::unary_function<Bitral::ConstantMemoryAddress, std::size_t> {
 public:
   std::size_t operator()(const Bitral::ConstantMemoryAddress& cma) const {
-    return boost::hash<Bitral::Immediate>()(cma.ImmediateValue);
+    return hash<Bitral::Immediate>()(cma.ImmediateValue);
   }
 };
 }

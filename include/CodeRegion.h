@@ -37,10 +37,22 @@ class BitralContext;
 class CompilerState;
 //class DestinationOperand;
 
+struct ComparisonResult {
+  llvm::Value* CompResult;
+  ComparisonResult(llvm::Value* comp_result) : CompResult(comp_result) {}
+};
+struct InstructionBlock {
+  llvm::BasicBlock* Block;
+  ConstantMemoryAddress Branch;
+  InstructionBlock(llvm::BasicBlock* ib, ConstantMemoryAddress cma) : Block(ib), Branch(cma) {}
+};
+
 class CodeRegion {
   friend class BitralContext;
-  typedef std::vector<llvm::BasicBlock*> InstructionVector;
+  typedef std::vector<InstructionBlock*> InstructionVector;
   typedef boost::unordered_map<ConstantMemoryAddress, InstructionVector*> InstructionMap;
+  //typedef boost:
+  typedef InstructionVector::iterator InstructionVectorIterator;
   typedef InstructionMap::iterator InstructionMapIterator;
 public:
 //  typedef std::unordered_map<Operand::IdType, DestinationOperand*> DestOpMap;
