@@ -38,6 +38,7 @@ class BitralContext;
 class CompilerState;
 
 struct ComparisonResult {
+  enum Type { LESS, LEQUAL, EQUAL, GEQUAL, GREATER };
   llvm::Value* CompResult;
   ComparisonResult(llvm::Value* comp_result) : CompResult(comp_result) {}
 };
@@ -57,50 +58,20 @@ class CodeRegion {
   typedef InstructionMap::iterator InstructionMapIterator;
   typedef CAddrMap::iterator CAddrMapIterator;
   typedef std::pair<ConstantMemoryAddress, ConstantMemoryAddress> CAddrPair;
-public:
-//  typedef std::unordered_map<Operand::IdType, DestinationOperand*> DestOpMap;
-//  typedef DestOpMap::iterator DestOpMapIterator;
-private:
-/*  class BranchTargets {
-    friend class CodeRegion;
-    CodeRegion::DestOpMap* UsedMap;
-    
-  public:
-    MemoryPtr Taken;
-    MemoryPtr NotTaken;
-    BranchTargets(CodeRegion::DestOpMap* map, MemoryPtr tkn, MemoryPtr ntkn) : UsedMap(map), Taken(tkn),
-                                                                                NotTaken(ntkn) {}
-    ~BranchTargets() {
-      for (auto I = UsedMap->begin(), E = UsedMap->end(); I != E; ++I)
-        delete I->second;
-      delete UsedMap;
-    }
-  };
-*/
-//  typedef std::unordered_map<MemoryPtr, BranchTargets*> BranchMap;
 
   ConstantMemoryAddress CurrentPos;
   ConstantMemoryAddress CurrentBranch;
   llvm::Function* RegionFunc;
   llvm::BasicBlock* PreviousBB;
   llvm::IRBuilder<> Builder;
-/*  llvm::LLVMContext& LLVMCtx;
-  llvm::Module* Module;
-  llvm::ExecutionEngine* ExecEngine;*/
   CompilerState CompState;
   InstructionMap AddressToInstructions;
   CAddrMap ActiveBranches;
-  //llvm::BasicBlock* CurrentFrontier;
-  //BranchMap Branches;
   InstructionVector* CurrentVector;
-  //DestOpMap* CurrentUsed;
 
   llvm::BasicBlock* advanceBB();
   void writeOperand(DestinationOperand* dst, llvm::Value* val);
   llvm::Value* readOperand(const Operand* src);
-  //DestinationOperand* getUpdateDst(DestinationOperand* dst);
-  //const Operand* getSource(const Operand* src);
-  //void advanceBranch();
   CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos);
 public:
   typedef void(*CodePointer)();
@@ -109,6 +80,9 @@ public:
   bool increaseMemoryPosition(boost::int16_t delta);
 //ACTIONS
   void createXOR(const Operand& src, DestinationOperand* dst);
+  ComparisonResult createComparison(ComparisonResult::Type type, 
+                                    const Operand& op1, const Operand& op2); 
+  void createOffsetConditionalBranch(ComparisonResult comparison, boost::int16_t offset);
   void closeRegion();
   CodePointer compile(); 
 

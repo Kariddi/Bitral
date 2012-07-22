@@ -26,6 +26,7 @@ IN THE SOFTWARE.
 #include <llvm/LLVMContext.h>
 #include <llvm/GlobalValue.h>
 #include <llvm/Module.h>
+#include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/JIT.h>
@@ -69,6 +70,12 @@ public:
   Register* addSubRegister(Register* base, Register::Interval intv, const std::string& name);
   void addMapping(llvm::GlobalVariable* GV, void* address);
   llvm::LLVMContext& getCompilerContext() { return CompState.LLVMCtx; }
+  void printModule(const std::string& file_name) { 
+    std::string Error;
+    llvm::raw_fd_ostream FileStream(file_name.c_str(), Error);
+    CompState.Module->print(FileStream, NULL);
+  }
+
   BitralContext();
   ~BitralContext(); 
 };

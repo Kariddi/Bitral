@@ -33,6 +33,7 @@ class Immediate : public Operand {
 
 //  friend class BitralContext;
   friend class boost::hash<Immediate>;
+  Immediate(boost::uint16_t bit_size, llvm::ConstantInt* val); 
 public:
   Immediate(BitralContext& context, boost::uint16_t bit_size, boost::uint64_t value); 
   bool operator==(const Immediate& imm) const { 
@@ -46,6 +47,14 @@ public:
                                            val));
     return *this;
   }
+  
+  Immediate operator+(boost::uint32_t val) {
+    return Immediate(BitSize,  
+    llvm::dyn_cast<llvm::ConstantInt>(llvm::ConstantInt::get(OperandValue->getType(), 
+      (llvm::dyn_cast<llvm::ConstantInt>(OperandValue)->getValue() + val))));
+
+  }
+
 };
 
 }

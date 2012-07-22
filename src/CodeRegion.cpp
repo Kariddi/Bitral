@@ -47,40 +47,6 @@ llvm::Value* CodeRegion::readOperand(const Operand* src) {
 
 }
 
-/*
-DestinationOperand* CodeRegion::getUpdateDst(DestinationOperand* dst) {
-
-  Operand::IdType Id = dst->getID();
-  DestOpMapIterator MapIt = CurrentUsed->find(Id);
-  if ( MapIt != CurrentUsed->end() )
-    return MapIt->second;
-
-  DestinationOperand* cloned_dst = dst->clone();
-  (*CurrentUsed)[Id] = cloned_dst;
-
-  return cloned_dst;
-
-}
-*/
-/*
-const Operand* CodeRegion::getSource(const Operand* src) {
-
-  DestOpMapIterator MapIt = CurrentUsed->find(src->getID());
-  if ( MapIt != CurrentUsed->end() )
-    return MapIt->second;
-
-  return src;
-
-}
-*/
-
-/*
-void CodeRegion::advanceBranch() {
-  llvm::BasicBlock* CurrentBB = CurrentVector->back();
-  BranchesSet->erase(old_frontier);
-  BranchesSet->insert(CurrentBB);
-}*/
-
 CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos) : 
                        CurrentPos(initial_pos), CurrentBranch(initial_pos), 
                        Builder(c_state.LLVMCtx), CompState(c_state), 
@@ -100,6 +66,7 @@ CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos
   CurrentVector->push_back(new InstructionBlock(BB, initial_pos));
   AddressToInstructions[initial_pos] = CurrentVector;
   ActiveBranches.insert(CAddrPair(CurrentBranch, initial_pos));
+  PreviousBB = BB;
 }
 
 CodeRegion::~CodeRegion() {
@@ -109,10 +76,6 @@ CodeRegion::~CodeRegion() {
       delete *I2;
     delete I->second;
   }
-/*
- for (auto I = Branches.begin(), E = Branches.end(); I != E; ++I)
-   delete I->second;
-*/
 }
 
 
@@ -170,11 +133,61 @@ void CodeRegion::createXOR(const Operand& src, DestinationOperand* dst) {
     static_cast<MemoryStoredOperand*>(dst)->generateStoringCode(Builder);
 }
 
+ComparisonResult CodeRegion::createComparison(ComparisonResult::Type type, const Operand& op1,
+                                              const Operand& op2) {
+  llvm::BasicBlock* NewBB = advanceBB();
+  Builder.SetInsertPoint(NewBB);
+  llvm::Value* result_val = NULL;
+  switch (type) {
+  case ComparisonResult::LESS:
+    result_val = Builder.CreateICmpSLT(readOperand(&op1), readOperand(&op2));
+    break;
+  case ComparisonResult::LEQUAL:
+    result_val = Builder.CreateICmpSLE(readOperand(&op1), readOperand(&op2));
+    break;
+  case ComparisonResult::EQUAL:
+    result_val = Builder.CreateICmpEQ(readOperand(&op1), readOperand(&op2));
+    break;
+  case ComparisonResult::GEQUAL:
+    result_val = Builder.CreateICmpSGE(readOperand(&op1), readOperand(&op2));
+    break;
+  case ComparisonResult::GREATER:
+    result_val = Builder.CreateICmpSGT(readOperand(&op1), readOperand(&op2));
+    break;
+  }
+  ComparisonResult result(result_val);
+
+  return result;
+}
+
+void CodeRegion::createOffsetConditionalBranch(ComparisonResult comparison, 
+                                               boost::int16_t offset) {
+//THIS IS SUPER PLACEHOLDER CODE!!!!!
+
+  llvm::BasicBlock* NewBB = advanceBB();
+  Builder.SetInsertPoint(NewBB);
+  llvm::BasicBlock* BB = llvm::BasicBlock::Create(CompState.LLVMCtx, "", RegionFunc);
+  llvm::BasicBlock* BB2 = llvm::BasicBlock::Create(CompState.LLVMCtx, "", RegionFunc);
+  llvm::BranchInst::Create(BB, BB2, comparison.CompResult, NewBB);
+  CAddrMapIterator It = ActiveBranches.find(CurrentPos+offset);
+  if (It != ActiveBranches.end())
+    It->second = CurrentPos+offset;
+  else
+    ActiveBranches.insert(CAddrPair(CurrentPos+offset, CurrentPos+offset));
+  CurrentVector->push_back(new InstructionBlock(BB, CurrentBranch));
+  InstructionVector* NewIV = new InstructionVector();
+  NewIV->push_back(new InstructionBlock(BB2, CurrentPos+offset));
+  AddressToInstructions[CurrentPos+offset] = NewIV; 
+}
+
 void CodeRegion::closeRegion() {
   for (CAddrMapIterator I = ActiveBranches.begin(), E = ActiveBranches.end(); I != E; ++I) {
-    InstructionVector* IV = AddressToInstructions.find(I->second)->second;
-    Builder.SetInsertPoint(IV->back()->Block); 
-    Builder.CreateRetVoid();
+    InstructionMapIterator It = AddressToInstructions.find(I->second);
+    if (It != AddressToInstructions.end()) {
+      InstructionVector* IV = AddressToInstructions.find(I->second)->second;
+      Builder.SetInsertPoint(IV->back()->Block); 
+      Builder.CreateRetVoid();
+    }
   }
 }
 

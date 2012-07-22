@@ -37,16 +37,19 @@ int main() {
 
   Register* reg = b.addRegister(32, "A", &reg_var);
   b.setMemorySpace(mem, sizeof(mem));
-  CodeRegion* Region = b.createNewCodeRegion(0);
-  //ComparisonResult Condition = BranchCondition::TRUE;
-  ConstantMemoryAddress branch_trgt = Region->createOffsetBranch(8);
+  CodeRegion* Region = b.createNewCodeRegion(ConstantMemoryAddress(Immediate(b, 32, 0)));
+  ComparisonResult Condition = Region->createComparison(ComparisonResult::LEQUAL, Immediate(b, 32, 0), Immediate(b, 32, 1));
   Region->increaseMemoryPosition(4);
-  Region->createMove(&Immediate(b, 32, 1), reg);
+  //ComparisonResult Condition = BranchCondition::TRUE;
+  //ConstantMemoryAddress branch_trgt = Region->createOffsetConditionalBranch(Condition, 8);
+  Region->createOffsetConditionalBranch(Condition, 8);
+/*  Region->increaseMemoryPosition(4);
+  Region->createMove(Immediate(b, 32, 1), reg);
   Region->setMemoryPosition(branch_trgt);
-  Region->createMove(&Immediate(b, 32, 0), reg);
-  
+  Region->createMove(Immediate(b, 32, 0), reg);
+  */
   Region->closeRegion();
-
+//  b.printModule("/home/hades/module.s");
   CodeRegion::CodePointer Code = Region->compile(); 
   assert(reg_var == 100);
   Code();

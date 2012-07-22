@@ -54,6 +54,11 @@ public:
     (ImmediateValue += val);
     return *this;
   }
+  
+  ConstantMemoryAddress operator+(boost::uint32_t val) {
+    return ConstantMemoryAddress(ImmediateValue + val);
+  }
+
 };
 
 }
