@@ -18,6 +18,7 @@ IN THE SOFTWARE.
 
 
 #include <CodeRegion.h>
+#include <llvm/Support/ManagedStatic.h>
 #include <BitralContext.h>
 
 using namespace Bitral;
@@ -97,4 +98,6 @@ BitralContext::~BitralContext() {
     delete I->second;
   for (CodeRegionMapIterator I = CodeRegions.begin(), E = CodeRegions.end(); I != E; ++I)
     delete I->second;
+  delete CompState.ExecEngine;
+  llvm::llvm_shutdown();
 }

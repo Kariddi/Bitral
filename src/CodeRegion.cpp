@@ -96,6 +96,7 @@ CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos
   llvm::BasicBlock* BB = llvm::BasicBlock::Create(CompState.LLVMCtx, "", RegionFunc);
   Builder.SetInsertPoint(BB);
   CurrentVector->push_back(new InstructionBlock(BB, initial_pos));
+  AddressToInstructions[initial_pos] = CurrentVector;
 }
 
 CodeRegion::~CodeRegion() {

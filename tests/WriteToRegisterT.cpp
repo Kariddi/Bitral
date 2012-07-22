@@ -46,7 +46,7 @@ int main() {
   Code();
   std::cout << reg_var << std::endl;
   assert(reg_var == 0);
-
+  
   return 0;
 
 }
