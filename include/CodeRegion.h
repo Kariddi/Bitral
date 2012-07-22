@@ -29,18 +29,19 @@ IN THE SOFTWARE.
 #include <DestinationOperand.h>
 #include <BitralContext.h>
 #include <llvm/Support/IRBuilder.h>
+#include <utility>
 #include <BitralConfig.h>
 
 namespace Bitral {
 
 class BitralContext;
 class CompilerState;
-//class DestinationOperand;
 
 struct ComparisonResult {
   llvm::Value* CompResult;
   ComparisonResult(llvm::Value* comp_result) : CompResult(comp_result) {}
 };
+
 struct InstructionBlock {
   llvm::BasicBlock* Block;
   ConstantMemoryAddress Branch;
@@ -51,9 +52,11 @@ class CodeRegion {
   friend class BitralContext;
   typedef std::vector<InstructionBlock*> InstructionVector;
   typedef boost::unordered_map<ConstantMemoryAddress, InstructionVector*> InstructionMap;
-  //typedef boost:
+  typedef boost::unordered_map<ConstantMemoryAddress, ConstantMemoryAddress> CAddrMap;
   typedef InstructionVector::iterator InstructionVectorIterator;
   typedef InstructionMap::iterator InstructionMapIterator;
+  typedef CAddrMap::iterator CAddrMapIterator;
+  typedef std::pair<ConstantMemoryAddress, ConstantMemoryAddress> CAddrPair;
 public:
 //  typedef std::unordered_map<Operand::IdType, DestinationOperand*> DestOpMap;
 //  typedef DestOpMap::iterator DestOpMapIterator;
@@ -77,6 +80,7 @@ private:
 //  typedef std::unordered_map<MemoryPtr, BranchTargets*> BranchMap;
 
   ConstantMemoryAddress CurrentPos;
+  ConstantMemoryAddress CurrentBranch;
   llvm::Function* RegionFunc;
   llvm::BasicBlock* PreviousBB;
   llvm::IRBuilder<> Builder;
@@ -85,6 +89,7 @@ private:
   llvm::ExecutionEngine* ExecEngine;*/
   CompilerState CompState;
   InstructionMap AddressToInstructions;
+  CAddrMap ActiveBranches;
   //llvm::BasicBlock* CurrentFrontier;
   //BranchMap Branches;
   InstructionVector* CurrentVector;

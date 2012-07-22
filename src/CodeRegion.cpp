@@ -18,6 +18,7 @@ IN THE SOFTWARE.
 
 
 #include <BitralContext.h>
+#include <iostream>
 #include <CodeRegion.h>
 
 using namespace Bitral;
@@ -81,7 +82,8 @@ void CodeRegion::advanceBranch() {
 }*/
 
 CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos) : 
-                       CurrentPos(initial_pos), Builder(c_state.LLVMCtx), CompState(c_state), 
+                       CurrentPos(initial_pos), CurrentBranch(initial_pos), 
+                       Builder(c_state.LLVMCtx), CompState(c_state), 
                        CurrentVector(new InstructionVector()) {
 
 //  Branches[initial_pos] = new BranchTargets(CurrentUsed, initial_pos, initial_pos);
@@ -97,6 +99,7 @@ CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos
   Builder.SetInsertPoint(BB);
   CurrentVector->push_back(new InstructionBlock(BB, initial_pos));
   AddressToInstructions[initial_pos] = CurrentVector;
+  ActiveBranches.insert(CAddrPair(CurrentBranch, initial_pos));
 }
 
 CodeRegion::~CodeRegion() {
@@ -123,6 +126,12 @@ bool CodeRegion::setMemoryPosition(ConstantMemoryAddress new_pos) {
   }
   CurrentVector = new InstructionVector();
   AddressToInstructions[CurrentPos] = CurrentVector;
+  CAddrMapIterator It = ActiveBranches.find(CurrentBranch);
+  if (It != ActiveBranches.end())
+    It->second = CurrentPos;
+  else
+    ActiveBranches.insert(CAddrPair(CurrentBranch, CurrentPos));
+
   return true;
 
 }
@@ -138,13 +147,19 @@ bool CodeRegion::increaseMemoryPosition(boost::int16_t delta) {
   }
   CurrentVector = new InstructionVector();
   AddressToInstructions[CurrentPos] = CurrentVector;
+  CAddrMapIterator It = ActiveBranches.find(CurrentBranch);
+  if (It != ActiveBranches.end())
+    It->second = CurrentPos;
+  else
+    ActiveBranches.insert(CAddrPair(CurrentBranch, CurrentPos));
+
   return true;
 }
 
 void CodeRegion::createXOR(const Operand& src, DestinationOperand* dst) {
   llvm::BasicBlock* NewBB = advanceBB();
   Builder.SetInsertPoint(NewBB);
-  CurrentVector->push_back(new InstructionBlock(NewBB, CurrentPos));
+  //CurrentVector->push_back(new InstructionBlock(NewBB, CurrentPos));
   if (dst->isMemoryStored())
     static_cast<MemoryStoredOperand*>(dst)->generateLoadingCode(Builder);
   llvm::Value* SrcVal = readOperand(&src);
@@ -156,7 +171,11 @@ void CodeRegion::createXOR(const Operand& src, DestinationOperand* dst) {
 }
 
 void CodeRegion::closeRegion() {
-  Builder.CreateRetVoid();
+  for (CAddrMapIterator I = ActiveBranches.begin(), E = ActiveBranches.end(); I != E; ++I) {
+    InstructionVector* IV = AddressToInstructions.find(I->second)->second;
+    Builder.SetInsertPoint(IV->back()->Block); 
+    Builder.CreateRetVoid();
+  }
 }
 
 CodeRegion::CodePointer CodeRegion::compile() {
