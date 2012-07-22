@@ -95,4 +95,6 @@ BitralContext::BitralContext() : CompState(llvm::getGlobalContext()) {
 BitralContext::~BitralContext() {
   for (RegisterMapIterator I = Registers.begin(), E = Registers.end(); I != E; ++I)
     delete I->second;
+  for (CodeRegionMapIterator I = CodeRegions.begin(), E = CodeRegions.end(); I != E; ++I)
+    delete I->second;
 }
