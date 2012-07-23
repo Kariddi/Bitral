@@ -45,17 +45,25 @@ struct ComparisonResult {
 
 struct InstructionBlock {
   llvm::BasicBlock* Block;
-  ConstantMemoryAddress Branch;
-  InstructionBlock(llvm::BasicBlock* ib, ConstantMemoryAddress cma) : Block(ib), Branch(cma) {}
+  ConstantMemoryAddress Address;
+  InstructionBlock(llvm::BasicBlock* ib, ConstantMemoryAddress cma) : Block(ib), Address(cma) {}
 };
+
+/*
+struct TargetBranch {
+  ConstantMemoryAddress Address;
+  llvm::BasicBlock* Block;
+  TargetBranch(ConstantMemoryAddress addr, llvm::BasicBlock* bb) : Address(addr), Block(bb) {}
+};*/
 
 class CodeRegion {
   friend class BitralContext;
-  typedef std::vector<InstructionBlock*> InstructionVector;
+  typedef std::vector<InstructionBlock> InstructionVector;
   typedef boost::unordered_map<ConstantMemoryAddress, InstructionVector*> InstructionMap;
   typedef boost::unordered_map<ConstantMemoryAddress, ConstantMemoryAddress> CAddrMap;
   typedef InstructionVector::iterator InstructionVectorIterator;
   typedef InstructionMap::iterator InstructionMapIterator;
+  typedef InstructionMap::const_iterator InstructionMapConstIterator;
   typedef CAddrMap::iterator CAddrMapIterator;
   typedef std::pair<ConstantMemoryAddress, ConstantMemoryAddress> CAddrPair;
 
@@ -70,6 +78,8 @@ class CodeRegion {
   InstructionVector* CurrentVector;
 
   llvm::BasicBlock* advanceBB();
+  void insertBranch(const InstructionBlock& taken, const InstructionBlock& not_taken);
+  llvm::BasicBlock* linkBranch(const ConstantMemoryAddress& branch_addr) const;
   void writeOperand(DestinationOperand* dst, llvm::Value* val);
   llvm::Value* readOperand(const Operand* src);
   CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos);

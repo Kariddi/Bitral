@@ -41,17 +41,18 @@ public:
     llvm::ConstantInt* ConstVal2 = llvm::dyn_cast<llvm::ConstantInt>(imm.OperandValue);
     return ConstVal1->getValue() == ConstVal2->getValue();
   }
+
   Immediate& operator+=(boost::uint32_t val) {
     OperandValue = llvm::ConstantInt::get(OperandValue->getType(), 
-                                          (llvm::dyn_cast<llvm::ConstantInt>(OperandValue)->getValue() +
-                                           val));
+                                          (llvm::dyn_cast<llvm::ConstantInt>(OperandValue)->getValue() + val));
+
     return *this;
   }
   
   Immediate operator+(boost::uint32_t val) {
     return Immediate(BitSize,  
-    llvm::dyn_cast<llvm::ConstantInt>(llvm::ConstantInt::get(OperandValue->getType(), 
-      (llvm::dyn_cast<llvm::ConstantInt>(OperandValue)->getValue() + val))));
+                     llvm::dyn_cast<llvm::ConstantInt>(llvm::ConstantInt::get(OperandValue->getType(), 
+                                      (llvm::dyn_cast<llvm::ConstantInt>(OperandValue)->getValue() + val))));
 
   }
 
