@@ -41,15 +41,16 @@ int main() {
   ComparisonResult Condition = Region->createComparison(ComparisonResult::LEQUAL, Immediate(b, 32, 0), Immediate(b, 32, 1));
   Region->increaseMemoryPosition(4);
   //ComparisonResult Condition = BranchCondition::TRUE;
-  //ConstantMemoryAddress branch_trgt = Region->createOffsetConditionalBranch(Condition, 8);
-  Region->createOffsetConditionalBranch(Condition, 8);
-/*  Region->increaseMemoryPosition(4);
+  ConstantMemoryAddress branch_trgt = Region->createOffsetConditionalBranch(Condition, 8);
+//  Region->createOffsetConditionalBranch(Condition, 8);
+  Region->increaseMemoryPosition(4);
   Region->createMove(Immediate(b, 32, 1), reg);
+//  Region->setBranch(branch_trgt);
   Region->setMemoryPosition(branch_trgt);
   Region->createMove(Immediate(b, 32, 0), reg);
-  */
+ 
   Region->closeRegion();
-//  b.printModule("/home/hades/module.s");
+  b.printModule("/home/hades/module.s");
   CodeRegion::CodePointer Code = Region->compile(); 
   assert(reg_var == 100);
   Code();

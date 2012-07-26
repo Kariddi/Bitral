@@ -86,13 +86,15 @@ class CodeRegion {
 public:
   typedef void(*CodePointer)();
   ~CodeRegion();
-  bool setMemoryPosition(ConstantMemoryAddress new_pos);
+  bool setMemoryPosition(const ConstantMemoryAddress& new_pos);
   bool increaseMemoryPosition(boost::int16_t delta);
+  void setBranch(const ConstantMemoryAddress& new_branch); 
 //ACTIONS
   void createXOR(const Operand& src, DestinationOperand* dst);
+  void createMove(const Operand& src, DestinationOperand* dst);
   ComparisonResult createComparison(ComparisonResult::Type type, 
                                     const Operand& op1, const Operand& op2); 
-  void createOffsetConditionalBranch(ComparisonResult comparison, boost::int16_t offset);
+  ConstantMemoryAddress createOffsetConditionalBranch(ComparisonResult comparison, boost::int16_t offset);
   void closeRegion();
   CodePointer compile(); 
 

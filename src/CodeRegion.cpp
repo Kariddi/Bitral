@@ -29,7 +29,7 @@ llvm::BasicBlock* CodeRegion::advanceBB() {
     OldBB = CurrentVector->back();*/
   llvm::BasicBlock* BB = llvm::BasicBlock::Create(CompState.LLVMCtx, "", RegionFunc);
   llvm::BranchInst::Create(BB, PreviousBB);
-  CurrentVector->push_back(InstructionBlock(BB, CurrentPos));
+  CurrentVector->push_back(InstructionBlock(BB, CurrentBranch));
   PreviousBB = BB;
 
   return BB;
@@ -42,11 +42,11 @@ void CodeRegion::insertBranch(const InstructionBlock& taken, const InstructionBl
     It->second = taken.Address;
   else
     ActiveBranches.insert(CAddrPair(taken.Address, taken.Address));
-  CurrentVector->push_back(InstructionBlock(not_taken.Block, CurrentBranch));
+  CurrentVector->push_back(not_taken);
   InstructionVector* NewIV = new InstructionVector();
   NewIV->push_back(taken);
   AddressToInstructions[taken.Address] = NewIV; 
-  
+  PreviousBB = not_taken.Block;
 }
 
 llvm::BasicBlock* CodeRegion::linkBranch(const ConstantMemoryAddress& branch_addr) const {
@@ -102,30 +102,37 @@ CodeRegion::~CodeRegion() {
 }
 
 
-bool CodeRegion::setMemoryPosition(ConstantMemoryAddress new_pos) {
+bool CodeRegion::setMemoryPosition(const ConstantMemoryAddress& new_pos) {
   CurrentPos = new_pos;
   InstructionMapIterator MapIt = AddressToInstructions.find(CurrentPos);
-  PreviousBB = CurrentVector->back().Block;
   if (MapIt != AddressToInstructions.end()) {
     CurrentVector = MapIt->second;
-    return false;
-  }
-  CurrentVector = new InstructionVector();
-  AddressToInstructions[CurrentPos] = CurrentVector;
-  CAddrMapIterator It = ActiveBranches.find(CurrentBranch);
-  if (It != ActiveBranches.end())
+    CurrentBranch = CurrentVector->back().Address;
+    CAddrMapIterator It = ActiveBranches.find(CurrentBranch);
+    PreviousBB = CurrentVector->back().Block;
+    if (It->second == CurrentPos) {
+      Builder.SetInsertPoint(CurrentVector->back().Block);
+      return true;
+    } else
+      return false;
+  } else {
+    CurrentVector = new InstructionVector();
+    AddressToInstructions[CurrentPos] = CurrentVector;
+    CAddrMapIterator It = ActiveBranches.find(CurrentBranch);
     It->second = CurrentPos;
-  else
-    ActiveBranches.insert(CAddrPair(CurrentBranch, CurrentPos));
-
-  return true;
+    llvm::BasicBlock* NewBB = advanceBB();
+    Builder.SetInsertPoint(NewBB);
+    CurrentVector->push_back(InstructionBlock(NewBB, CurrentBranch));
+    PreviousBB = NewBB;
+    return true;
+  }
 
 }
 
 //Return true if instructions can be added at this position
 bool CodeRegion::increaseMemoryPosition(boost::int16_t delta) {
-  CurrentPos += delta;
-  InstructionMapIterator MapIt = AddressToInstructions.find(CurrentPos);
+  return setMemoryPosition(CurrentPos + delta);
+/*  InstructionMapIterator MapIt = AddressToInstructions.find(CurrentPos);
   PreviousBB = CurrentVector->back().Block;
   if (MapIt != AddressToInstructions.end()) {
     CurrentVector = MapIt->second;
@@ -139,12 +146,25 @@ bool CodeRegion::increaseMemoryPosition(boost::int16_t delta) {
   else
     ActiveBranches.insert(CAddrPair(CurrentBranch, CurrentPos));
 
-  return true;
+  return true;*/
+
 }
 
+void CodeRegion::setBranch(const ConstantMemoryAddress& new_branch) {
+  CAddrMapIterator It = ActiveBranches.find(new_branch);
+  if (It != ActiveBranches.end()) {
+    CurrentBranch = new_branch;
+    CurrentPos = It->second;
+    CurrentVector = AddressToInstructions.find(CurrentPos)->second;
+    Builder.SetInsertPoint(CurrentVector->back().Block);
+    PreviousBB = CurrentVector->back().Block; 
+
+  }
+ 
+}
 void CodeRegion::createXOR(const Operand& src, DestinationOperand* dst) {
-  llvm::BasicBlock* NewBB = advanceBB();
-  Builder.SetInsertPoint(NewBB);
+//  llvm::BasicBlock* NewBB = advanceBB();
+//  Builder.SetInsertPoint(NewBB);
   //CurrentVector->push_back(new InstructionBlock(NewBB, CurrentPos));
   if (dst->isMemoryStored())
     static_cast<MemoryStoredOperand*>(dst)->generateLoadingCode(Builder);
@@ -156,10 +176,24 @@ void CodeRegion::createXOR(const Operand& src, DestinationOperand* dst) {
     static_cast<MemoryStoredOperand*>(dst)->generateStoringCode(Builder);
 }
 
+void CodeRegion::createMove(const Operand& src, DestinationOperand* dst) {
+//  llvm::BasicBlock* NewBB = advanceBB();
+//  Builder.SetInsertPoint(NewBB);
+  //CurrentVector->push_back(new InstructionBlock(NewBB, CurrentPos));
+  if (dst->isMemoryStored())
+    static_cast<MemoryStoredOperand*>(dst)->generateLoadingCode(Builder);
+  llvm::Value* SrcVal = readOperand(&src);
+  //CurrentVector->push_back(val);
+  writeOperand(dst, SrcVal);
+  if (dst->isMemoryStored())
+    static_cast<MemoryStoredOperand*>(dst)->generateStoringCode(Builder);
+}
+
+
 ComparisonResult CodeRegion::createComparison(ComparisonResult::Type type, const Operand& op1,
                                               const Operand& op2) {
-  llvm::BasicBlock* NewBB = advanceBB();
-  Builder.SetInsertPoint(NewBB);
+//  llvm::BasicBlock* NewBB = advanceBB();
+//  Builder.SetInsertPoint(NewBB);
   llvm::Value* result_val = NULL;
   switch (type) {
   case ComparisonResult::LESS:
@@ -183,16 +217,18 @@ ComparisonResult CodeRegion::createComparison(ComparisonResult::Type type, const
   return result;
 }
 
-void CodeRegion::createOffsetConditionalBranch(ComparisonResult comparison, 
+ConstantMemoryAddress CodeRegion::createOffsetConditionalBranch(ComparisonResult comparison, 
                                                boost::int16_t offset) {
-  llvm::BasicBlock* NewBB = advanceBB();
-  Builder.SetInsertPoint(NewBB);
+//  llvm::BasicBlock* NewBB = advanceBB();
+//  Builder.SetInsertPoint(NewBB);
   ConstantMemoryAddress TakenAddress = CurrentPos + offset;
   llvm::BasicBlock* BBTkn = linkBranch(TakenAddress);
   llvm::BasicBlock* BBNTkn = linkBranch(CurrentPos);
-  llvm::BranchInst::Create(BBTkn, BBNTkn, comparison.CompResult, NewBB);
-  insertBranch(InstructionBlock(BBTkn, TakenAddress), InstructionBlock(BBNTkn, CurrentPos));
-  PreviousBB = BBNTkn;
+  llvm::BranchInst::Create(BBTkn, BBNTkn, comparison.CompResult, CurrentVector->back().Block);
+  insertBranch(InstructionBlock(BBTkn, TakenAddress), InstructionBlock(BBNTkn, CurrentBranch));
+  Builder.SetInsertPoint(BBNTkn);
+  
+  return TakenAddress;
 }
 
 void CodeRegion::closeRegion() {
