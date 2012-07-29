@@ -36,16 +36,16 @@ llvm::GlobalVariable* Register::InitGV(CompilerState& c_state, void* address,
     return RegGV;
 }
 
-void Register::generateLoadingCode(llvm::IRBuilder<>& builder) {
+/*void Register::generateLoadingCode(llvm::IRBuilder<>& builder) {
   OperandValue = builder.CreateLoad(RegGV);
 }
 
 void Register::generateStoringCode(llvm::IRBuilder<>& builder) const {
   builder.CreateStore(OperandValue, RegGV);
-}
-
+}*/
+/*
 DestinationOperand* Register::clone() {
 
   return new Register(*this); 
 
-}
+}*/

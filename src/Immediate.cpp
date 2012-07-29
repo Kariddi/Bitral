@@ -23,10 +23,9 @@ IN THE SOFTWARE.
 
 using namespace Bitral;
 
-Immediate::Immediate(boost::uint16_t bit_size, llvm::ConstantInt* val) : Operand(bit_size, val) {}
+Immediate::Immediate(boost::uint16_t bit_size, llvm::ConstantInt* val) : Operand(bit_size), ConstantValue(val) {}
 
-Immediate::Immediate(BitralContext& context, boost::uint16_t bit_size, boost::uint64_t value) : Operand(bit_size, 
-                                                                llvm::ConstantInt::get(
-                                                                  llvm::IntegerType::get(
-                                                                    context.getCompilerContext(),
-                                                                    bit_size), value)) {}
+Immediate::Immediate(BitralContext& context, boost::uint16_t bit_size, boost::uint64_t value) : Operand(bit_size),
+           ConstantValue(static_cast<llvm::ConstantInt*>(llvm::ConstantInt::get(
+           llvm::IntegerType::get(context.getCompilerContext(),
+           bit_size), value))) {}

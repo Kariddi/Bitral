@@ -20,32 +20,28 @@ IN THE SOFTWARE.
 #ifndef __BITRAL_OPERAND_H__
 #define __BITRAL_OPERAND_H__
 #include <llvm/Value.h>
+#include <llvm/Support/IRBuilder.h>
 #include <BitralConfig.h>
 
 namespace Bitral {
 
 class Operand {
-public:
-  typedef boost::uint32_t IdType;
-private:
-  static IdType NextId;
-
 protected:
   boost::uint16_t BitSize;
-  llvm::Value* OperandValue;
-  boost::uint32_t UniqueID;
 
-  Operand(boost::uint16_t bit_size, llvm::Value* op_value) : BitSize(bit_size), OperandValue(op_value) {
-    UniqueID = NextId++;
-  }
+  Operand(boost::uint16_t bit_size) : BitSize(bit_size) {}
 public:
   boost::uint16_t getBitSize() const { return BitSize; }
-  llvm::Value* getValue() const { return OperandValue; }
-  IdType getID() const { return UniqueID; }
+  /** Returns the value representing the Operand. If the Operand is memory stored
+      it will be loaded from the memory, (through code added to the IRBuilder), otherwise
+      it should return the object representing the initial value of the operand
+  **/ 
+  virtual llvm::Value* getValue(llvm::IRBuilder<>& builder) const = 0;
+  /** Sets the value for the Operand. If the operand is memory stored it will be stored to memory.
+      It returns false if the operand doesn't support value storing
+  **/
+  virtual bool setValue(llvm::IRBuilder<>& builder, llvm::Value* val) = 0;
   virtual ~Operand() { }
-  //virtual void add(Operand* addend) = 0;
-  //virtual Comparison* compare(Operand* op) = 0;
-  //virtual void subtract(Operand* addend) = 0;
 };
 
 }

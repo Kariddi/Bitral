@@ -31,28 +31,33 @@ class BitralContext;
 
 class Immediate : public Operand {
 
-//  friend class BitralContext;
   friend class boost::hash<Immediate>;
+
+  llvm::ConstantInt* ConstantValue;
   Immediate(boost::uint16_t bit_size, llvm::ConstantInt* val); 
+
 public:
-  Immediate(BitralContext& context, boost::uint16_t bit_size, boost::uint64_t value); 
+  Immediate(BitralContext& context, boost::uint16_t bit_size, boost::uint64_t value);
+  
+  virtual llvm::Value* getValue(llvm::IRBuilder<>& builder) const { return ConstantValue; };
+  
+  virtual bool setValue(llvm::IRBuilder<>& builder, llvm::Value* val) { return false; }
+
   bool operator==(const Immediate& imm) const { 
-    llvm::ConstantInt* ConstVal1 = llvm::dyn_cast<llvm::ConstantInt>(OperandValue);
-    llvm::ConstantInt* ConstVal2 = llvm::dyn_cast<llvm::ConstantInt>(imm.OperandValue);
-    return ConstVal1->getValue() == ConstVal2->getValue();
+    return ConstantValue->getValue() == imm.ConstantValue->getValue();
   }
 
   Immediate& operator+=(boost::uint32_t val) {
-    OperandValue = llvm::ConstantInt::get(OperandValue->getType(), 
-                                          (llvm::dyn_cast<llvm::ConstantInt>(OperandValue)->getValue() + val));
+    ConstantValue = static_cast<llvm::ConstantInt*>(llvm::ConstantInt::get(ConstantValue->getType(), 
+                    ConstantValue->getValue() + val));
 
     return *this;
   }
   
   Immediate operator+(boost::uint32_t val) {
     return Immediate(BitSize,  
-                     llvm::dyn_cast<llvm::ConstantInt>(llvm::ConstantInt::get(OperandValue->getType(), 
-                                      (llvm::dyn_cast<llvm::ConstantInt>(OperandValue)->getValue() + val))));
+                     static_cast<llvm::ConstantInt*>(llvm::ConstantInt::get(ConstantValue->getType(), 
+                     ConstantValue->getValue() + val)));
 
   }
 
@@ -64,7 +69,7 @@ namespace boost {
 template<>
 struct hash<Bitral::Immediate> : public std::unary_function<Bitral::Immediate, std::size_t> {
   std::size_t operator()(const Bitral::Immediate& imm) const {
-    const llvm::APInt& ap_int = llvm::dyn_cast<llvm::ConstantInt>(imm.OperandValue)->getValue();
+    const llvm::APInt& ap_int = llvm::dyn_cast<llvm::ConstantInt>(imm.ConstantValue)->getValue();
     const uint64_t* raw = reinterpret_cast<const uint64_t*>(ap_int.getRawData());
     uint64_t sum = raw[0];
     int word_num = ap_int.getNumWords();

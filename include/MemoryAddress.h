@@ -25,11 +25,10 @@ IN THE SOFTWARE.
 
 namespace Bitral {
 
-class MemoryAddress {
+class MemoryAddress : public Operand {
 protected:
-  //MemoryAddress(std::uint16_t bit_size, llvm::Value* op_value) : Operand(bit_size, op_value) {}
+  MemoryAddress(boost::uint16_t bit_size) : Operand(bit_size) {}
 
-  virtual boost::uint16_t getBitSize() = 0;
 public:
   virtual ~MemoryAddress() {}
 };

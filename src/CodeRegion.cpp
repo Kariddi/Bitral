@@ -25,8 +25,6 @@ using namespace Bitral;
 
 llvm::BasicBlock* CodeRegion::advanceBB() {
 //Create a new BasicBlock and make an unconditional branch from the previous one to the new one
-/*  if (CurrentVector->size() > 0)
-    OldBB = CurrentVector->back();*/
   llvm::BasicBlock* BB = llvm::BasicBlock::Create(CompState.LLVMCtx, "", RegionFunc);
   llvm::BranchInst::Create(BB, PreviousBB);
   CurrentVector->push_back(InstructionBlock(BB, CurrentBranch));
@@ -61,12 +59,12 @@ llvm::BasicBlock* CodeRegion::linkBranch(const ConstantMemoryAddress& branch_add
 
 void CodeRegion::writeOperand(DestinationOperand* dst, llvm::Value* val) {
    
-  dst->setValue(val);
+  dst->setValue(Builder, val);
 }
 
 llvm::Value* CodeRegion::readOperand(const Operand* src) {
 
-  return src->getValue();
+  return src->getValue(Builder);
 
 }
 
@@ -75,7 +73,6 @@ CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos
                        Builder(c_state.LLVMCtx), CompState(c_state), 
                        CurrentVector(new InstructionVector()) {
 
-//  Branches[initial_pos] = new BranchTargets(CurrentUsed, initial_pos, initial_pos);
 //Function Creation
 
   llvm::FunctionType* NewFuncTy = llvm::FunctionType::get(llvm::Type::getVoidTy(CompState.LLVMCtx), 
@@ -94,11 +91,8 @@ CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos
 
 CodeRegion::~CodeRegion() {
 
-  for (InstructionMapIterator I = AddressToInstructions.begin(), E = AddressToInstructions.end(); I != E; ++I) {
-    //for (InstructionVectorIterator I2 = I->second->begin(), E2 = I->second->end(); I2 != E2; ++I2)
-    //  delete *I2;
+  for (InstructionMapIterator I = AddressToInstructions.begin(), E = AddressToInstructions.end(); I != E; ++I) 
     delete I->second;
-  }
 }
 
 
@@ -132,22 +126,6 @@ bool CodeRegion::setMemoryPosition(const ConstantMemoryAddress& new_pos) {
 //Return true if instructions can be added at this position
 bool CodeRegion::increaseMemoryPosition(boost::int16_t delta) {
   return setMemoryPosition(CurrentPos + delta);
-/*  InstructionMapIterator MapIt = AddressToInstructions.find(CurrentPos);
-  PreviousBB = CurrentVector->back().Block;
-  if (MapIt != AddressToInstructions.end()) {
-    CurrentVector = MapIt->second;
-    return false;
-  }
-  CurrentVector = new InstructionVector();
-  AddressToInstructions[CurrentPos] = CurrentVector;
-  CAddrMapIterator It = ActiveBranches.find(CurrentBranch);
-  if (It != ActiveBranches.end())
-    It->second = CurrentPos;
-  else
-    ActiveBranches.insert(CAddrPair(CurrentBranch, CurrentPos));
-
-  return true;*/
-
 }
 
 void CodeRegion::setBranch(const ConstantMemoryAddress& new_branch) {
@@ -163,37 +141,17 @@ void CodeRegion::setBranch(const ConstantMemoryAddress& new_branch) {
  
 }
 void CodeRegion::createXOR(const Operand& src, DestinationOperand* dst) {
-//  llvm::BasicBlock* NewBB = advanceBB();
-//  Builder.SetInsertPoint(NewBB);
-  //CurrentVector->push_back(new InstructionBlock(NewBB, CurrentPos));
-  if (dst->isMemoryStored())
-    static_cast<MemoryStoredOperand*>(dst)->generateLoadingCode(Builder);
-  llvm::Value* SrcVal = readOperand(&src);
   llvm::Value* val = Builder.CreateXor(readOperand(&src), readOperand(dst));
-  //CurrentVector->push_back(val);
   writeOperand(dst, val);
-  if (dst->isMemoryStored())
-    static_cast<MemoryStoredOperand*>(dst)->generateStoringCode(Builder);
 }
 
 void CodeRegion::createMove(const Operand& src, DestinationOperand* dst) {
-//  llvm::BasicBlock* NewBB = advanceBB();
-//  Builder.SetInsertPoint(NewBB);
-  //CurrentVector->push_back(new InstructionBlock(NewBB, CurrentPos));
-  if (dst->isMemoryStored())
-    static_cast<MemoryStoredOperand*>(dst)->generateLoadingCode(Builder);
-  llvm::Value* SrcVal = readOperand(&src);
-  //CurrentVector->push_back(val);
-  writeOperand(dst, SrcVal);
-  if (dst->isMemoryStored())
-    static_cast<MemoryStoredOperand*>(dst)->generateStoringCode(Builder);
+  writeOperand(dst, readOperand(&src));
 }
 
 
 ComparisonResult CodeRegion::createComparison(ComparisonResult::Type type, const Operand& op1,
                                               const Operand& op2) {
-//  llvm::BasicBlock* NewBB = advanceBB();
-//  Builder.SetInsertPoint(NewBB);
   llvm::Value* result_val = NULL;
   switch (type) {
   case ComparisonResult::LESS:
@@ -219,8 +177,6 @@ ComparisonResult CodeRegion::createComparison(ComparisonResult::Type type, const
 
 ConstantMemoryAddress CodeRegion::createOffsetConditionalBranch(ComparisonResult comparison, 
                                                boost::int16_t offset) {
-//  llvm::BasicBlock* NewBB = advanceBB();
-//  Builder.SetInsertPoint(NewBB);
   ConstantMemoryAddress TakenAddress = CurrentPos + offset;
   llvm::BasicBlock* BBTkn = linkBranch(TakenAddress);
   llvm::BasicBlock* BBNTkn = linkBranch(CurrentPos);

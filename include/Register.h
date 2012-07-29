@@ -48,10 +48,6 @@ public:
     Interval() : Begin(0), End(0) {}
     Interval(boost::uint16_t begin, boost::uint16_t end) : Begin(begin), End(end) {}
   };
-//  virtual void setValue(CodeRegion* region, llvm::Value* val);
-  virtual void generateLoadingCode(llvm::IRBuilder<>& builder);
-  virtual void generateStoringCode(llvm::IRBuilder<>& builder) const;
-  virtual DestinationOperand* clone();
 
 private:
   Register* BaseReg;

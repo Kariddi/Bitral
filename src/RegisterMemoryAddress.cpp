@@ -24,28 +24,49 @@ IN THE SOFTWARE.
 #include <RegisterMemoryAddress.h>
 using namespace Bitral;
 
-RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg) : 
-                                                                      Base(base_reg), Index(NULL), 
-                                                                      Scale(Immediate(context,0,0)),
-                                                                      Displacement(Immediate(context,0,0)) {}
+RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg) :
+                                             MemoryAddress(computeBS(base_reg, NULL, 
+                                             Immediate(context,0,0), Immediate(context,0,0))), 
+                                             Base(base_reg), Index(NULL), 
+                                             Scale(Immediate(context,0,0)),
+                                             Displacement(Immediate(context,0,0)) {}
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, 
-                                             Register* index, const Immediate& scale) : 
+                                             Register* index, const Immediate& scale) :
+                                             MemoryAddress(computeBS(base_reg, NULL, 
+                                             scale, Immediate(context,0,0))), 
                                              Base(base_reg), Index(index),
                                              Scale(scale), Displacement(Immediate(context,0,0)) {}
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, Register* index, 
-                                                                     const Immediate& scale, 
-                                                                     const Immediate& displacement) : 
-                                                                     Base(base_reg), Index(index), Scale(scale),
-                                                                     Displacement(displacement) {}
+                                             const Immediate& scale, 
+                                             const Immediate& displacement) :
+                                             MemoryAddress(computeBS(base_reg, index, scale, displacement)),
+                                             Base(base_reg), Index(index), Scale(scale),
+                                             Displacement(displacement) {}
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, 
-                                             const Immediate& displacement) : Base(base_reg), Index(NULL), 
-                                                                        Scale(Immediate(context,0,0)),
-                                                                        Displacement(displacement) {}
+                                             const Immediate& displacement) : 
+                                             MemoryAddress(computeBS(base_reg, NULL, 
+                                             Immediate(context,0,0), displacement)), 
+                                             Base(base_reg), Index(NULL), 
+                                             Scale(Immediate(context,0,0)),
+                                             Displacement(displacement) {}
 
-boost::uint16_t RegisterMemoryAddress::getBitSize() {
+llvm::Value* RegisterMemoryAddress::getValue(llvm::IRBuilder<>& builder) const {
+
+  if (Index != NULL) {
+    llvm::Value* ToReturn = NULL;
+    llvm::Value* ScaleIdxVal = builder.CreateMul(Scale.getValue(builder), Index->getValue(builder)); 
+    ToReturn = builder.CreateAdd(Base->getValue(builder), ScaleIdxVal); 
+    return builder.CreateAdd(ToReturn, Displacement.getValue(builder));
+  }
+  
+  return builder.CreateAdd(Base->getValue(builder), Displacement.getValue(builder));
+}
+
+boost::uint16_t RegisterMemoryAddress::computeBS(const Register* Base, const Register* Index, 
+                                                  const Immediate& Scale, const Immediate& Displacement) {
     if (Index != NULL) {
       return std::max(Base->getBitSize(), std::max(Index->getBitSize(), 
                       std::max(Scale.getBitSize(), Displacement.getBitSize())));

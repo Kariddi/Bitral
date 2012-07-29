@@ -33,6 +33,8 @@ class RegisterMemoryAddress : public MemoryAddress {
   Immediate Displacement;
   //friend class BitralContext;
 
+boost::uint16_t computeBS(const Register* Base, const Register* Index, 
+                                                 const Immediate& Scale, const Immediate& Displacement);
 public:
   RegisterMemoryAddress(BitralContext& context, Register* base_reg);
 
@@ -41,7 +43,10 @@ public:
                         const Immediate& scale, const Immediate& displacement);
   RegisterMemoryAddress(BitralContext& context, Register* base_reg, const Immediate& displacement);
 
-  virtual boost::uint16_t getBitSize();
+  virtual llvm::Value* getValue(llvm::IRBuilder<>& builder) const;
+  
+  virtual bool setValue(llvm::IRBuilder<>& builder, llvm::Value* val) { return false; }
+
 };
 
 }

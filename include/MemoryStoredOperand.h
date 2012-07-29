@@ -30,11 +30,16 @@ class MemoryStoredOperand : public DestinationOperand {
 
 protected:
   llvm::GlobalVariable* RegGV;
+  MemoryStoredOperand(boost::uint16_t bit_size, llvm::GlobalVariable* op_value) : DestinationOperand(bit_size), RegGV(op_value) {}
 public:
-  virtual bool isMemoryStored() { return true; }
-  virtual void generateLoadingCode(llvm::IRBuilder<>& builder) = 0;
-  virtual void generateStoringCode(llvm::IRBuilder<>& builder) const = 0;
-  MemoryStoredOperand(boost::uint16_t bit_size, llvm::GlobalVariable* op_value) : DestinationOperand(bit_size, op_value), RegGV(op_value) {}
+  virtual llvm::Value* getValue(llvm::IRBuilder<>& builder) const { 
+    return builder.CreateLoad(RegGV);
+  }
+  
+  virtual bool setValue(llvm::IRBuilder<>& builder, llvm::Value* val) { 
+    builder.CreateStore(val, RegGV);
+    return true;
+  }
 
 };
 

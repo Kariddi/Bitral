@@ -42,11 +42,17 @@ Immediate ImmediateValue;
   friend class BitralContext;
   friend class boost::hash<ConstantMemoryAddress>;
 public:
-  ConstantMemoryAddress(const Immediate& immediate) : ImmediateValue(immediate) {}
+  ConstantMemoryAddress(const Immediate& immediate) : MemoryAddress(immediate.getBitSize()), 
+                        ImmediateValue(immediate) {}
   //ConstantMemoryAddress() {} 
   // ConstantMemoryAddress(const BitralContext& Context, std::uint16_t bit_size, ArrayRef<std::uint64_t> address) : Address(bit_size, address) {}
 
   virtual boost::uint16_t getBitSize();
+
+  virtual llvm::Value* getValue(llvm::IRBuilder<>& builder) const { return ImmediateValue.getValue(builder); }
+  
+  virtual bool setValue(llvm::IRBuilder<>& builder, llvm::Value* val) { return false; }
+
   bool operator==(const ConstantMemoryAddress& cma) const {
     return ImmediateValue == cma.ImmediateValue;
   }
