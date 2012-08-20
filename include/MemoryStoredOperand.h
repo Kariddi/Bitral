@@ -21,7 +21,7 @@ IN THE SOFTWARE.
 #define __BITRAL_MEMORY_STORED_OPERAND_H__
 
 #include <llvm/GlobalVariable.h>
-#include <llvm/Support/IRBuilder.h>
+#include <llvm/IRBuilder.h>
 #include <DestinationOperand.h>
 
 namespace Bitral {

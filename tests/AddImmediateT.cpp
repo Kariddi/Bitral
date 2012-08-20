@@ -19,7 +19,7 @@ IN THE SOFTWARE.
 
 #include <BitralContext.h>
 #include <iostream>
-#include <ConstantMemoryAddress.h>
+#include <RegisterMemoryAddress.h>
 #include <CodeRegion.h>
 #include <cassert>
 #undef NDEBUG
@@ -36,26 +36,18 @@ int main() {
   BitralContext b;
 
   Register* reg = b.addRegister(32, "A", &reg_var);
+  //Register* reg = b.addRegister(32, "B", &reg_var2);
   b.setMemorySpace(mem, sizeof(mem));
   CodeRegion* Region = b.createNewCodeRegion(ConstantMemoryAddress(Immediate(b, 32, 0)));
-  ComparisonResult Condition = Region->createComparison(ComparisonResult::LEQUAL, Immediate(b, 32, 0), Immediate(b, 32, 1));
+  Region->createMove(Immediate(b, 32, 10), reg);
   Region->increaseMemoryPosition(4);
-  //ComparisonResult Condition = BranchCondition::TRUE;
-  ConstantMemoryAddress branch_trgt = Region->createOffsetConditionalBranch(Condition, 8);
-//  Region->createOffsetConditionalBranch(Condition, 8);
+  Region->createAdd(Immediate(b, 32, 5), reg);
   Region->increaseMemoryPosition(4);
-  Region->createMove(Immediate(b, 32, 1), reg);
-//  Region->setBranch(branch_trgt);
-  Region->setMemoryPosition(branch_trgt);
-  Region->createMove(Immediate(b, 32, 0), reg);
- 
   Region->closeRegion();
-  //b.printModule("/home/hades/module.s");
-  CodeRegion::CodePointer Code = Region->compile(); 
+  CodeRegion::CodePointer Code = Region->compile();
   assert(reg_var == 100);
   Code();
-  std::cout << reg_var << std::endl;
-  assert(reg_var == 0);
+  assert(reg_var == 15);
 
   return 0;
 

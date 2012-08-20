@@ -22,3 +22,4 @@ add_test(create_reg_mem_address ${CMAKE_CURRENT_BINARY_DIR}/tests/create_reg_mem
 add_test(create_sub_reg ${CMAKE_CURRENT_BINARY_DIR}/tests/create_sub_reg)
 add_test(write_to_reg ${CMAKE_CURRENT_BINARY_DIR}/tests/write_to_reg)
 add_test(basic_branch ${CMAKE_CURRENT_BINARY_DIR}/tests/basic_branch)
+add_test(add_immediate ${CMAKE_CURRENT_BINARY_DIR}/tests/add_immediate)

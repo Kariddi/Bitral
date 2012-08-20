@@ -28,7 +28,7 @@ IN THE SOFTWARE.
 #include <llvm/BasicBlock.h>
 #include <DestinationOperand.h>
 #include <BitralContext.h>
-#include <llvm/Support/IRBuilder.h>
+#include <llvm/IRBuilder.h>
 #include <utility>
 #include <BitralConfig.h>
 
@@ -92,6 +92,7 @@ public:
 //ACTIONS
   void createXOR(const Operand& src, DestinationOperand* dst);
   void createMove(const Operand& src, DestinationOperand* dst);
+  void createAdd(const Operand& src, DestinationOperand* dst);
   ComparisonResult createComparison(ComparisonResult::Type type, 
                                     const Operand& op1, const Operand& op2); 
   ConstantMemoryAddress createOffsetConditionalBranch(ComparisonResult comparison, boost::int16_t offset);

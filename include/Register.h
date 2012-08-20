@@ -21,7 +21,7 @@ IN THE SOFTWARE.
 #define __BITRAL_REGISTER_H__
 
 #include <string>
-#include <llvm/Support/IRBuilder.h>
+#include <llvm/IRBuilder.h>
 #include <MemoryStoredOperand.h>
 #include <BitralConfig.h>
 #include <llvm/GlobalVariable.h>

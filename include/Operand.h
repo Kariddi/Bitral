@@ -20,7 +20,7 @@ IN THE SOFTWARE.
 #ifndef __BITRAL_OPERAND_H__
 #define __BITRAL_OPERAND_H__
 #include <llvm/Value.h>
-#include <llvm/Support/IRBuilder.h>
+#include <llvm/IRBuilder.h>
 #include <BitralConfig.h>
 
 namespace Bitral {

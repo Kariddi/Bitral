@@ -149,6 +149,10 @@ void CodeRegion::createMove(const Operand& src, DestinationOperand* dst) {
   writeOperand(dst, readOperand(&src));
 }
 
+void CodeRegion::createAdd(const Operand& src, DestinationOperand* dst) {
+  llvm::Value* val = Builder.CreateAdd(readOperand(&src), readOperand(dst));
+  writeOperand(dst, val);
+}
 
 ComparisonResult CodeRegion::createComparison(ComparisonResult::Type type, const Operand& op1,
                                               const Operand& op2) {

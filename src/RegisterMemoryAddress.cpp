@@ -26,17 +26,17 @@ using namespace Bitral;
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg) :
                                              MemoryAddress(computeBS(base_reg, NULL, 
-                                             Immediate(context,0,0), Immediate(context,0,0))), 
+                                             Immediate(context,8,0), Immediate(context,8,0))), 
                                              Base(base_reg), Index(NULL), 
-                                             Scale(Immediate(context,0,0)),
-                                             Displacement(Immediate(context,0,0)) {}
+                                             Scale(Immediate(context,8,0)),
+                                             Displacement(Immediate(context,8,0)) {}
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, 
                                              Register* index, const Immediate& scale) :
                                              MemoryAddress(computeBS(base_reg, NULL, 
-                                             scale, Immediate(context,0,0))), 
+                                             scale, Immediate(context,8,0))), 
                                              Base(base_reg), Index(index),
-                                             Scale(scale), Displacement(Immediate(context,0,0)) {}
+                                             Scale(scale), Displacement(Immediate(context,8,0)) {}
 
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, Register* index, 
                                              const Immediate& scale, 
@@ -48,9 +48,9 @@ RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* b
 RegisterMemoryAddress::RegisterMemoryAddress(BitralContext& context, Register* base_reg, 
                                              const Immediate& displacement) : 
                                              MemoryAddress(computeBS(base_reg, NULL, 
-                                             Immediate(context,0,0), displacement)), 
+                                             Immediate(context,8,0), displacement)), 
                                              Base(base_reg), Index(NULL), 
-                                             Scale(Immediate(context,0,0)),
+                                             Scale(Immediate(context,8,0)),
                                              Displacement(displacement) {}
 
 llvm::Value* RegisterMemoryAddress::getValue(llvm::IRBuilder<>& builder) const {
