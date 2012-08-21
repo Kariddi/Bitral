@@ -50,14 +50,14 @@ void recADD() {
   Bitral::Register* reg = BContext.getRegister(*CodeNameMap.find(reg_1));
   Bitral::Register* reg2 = BContext.getRegister(*CodeNameMap.find(reg_2));
 
-  Region->createAdd(reg, reg2, reg);
+  Region->createAdd(*reg2, reg);
   Region->increaseMemoryPosition(4);
 }
 
 void recADDI() {
   Bitral::Register* reg = BContext.getRegister(*CodeNameMap.find(REG_ONLY));
 
-  Region->createAdd(reg, reg, Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Region->createAdd(Bitral::Immediate(BContext, 16, IMMEDIATE), reg);
   Region->increaseMemoryPosition(4);
 }
 
@@ -65,7 +65,7 @@ void recCMPI() {
   Bitral::Register* reg = BContext.getRegister(*CodeNameMap.find(REG_ONLY));
   Bitral::Register* status = BContext.getRegister(*CodeNameMap.find(REG_STATUS));
 
-  Bitral::CompareRes cmp_res(Region->createCompare(reg, Bitral::Immediate(BContext, 16, IMMEDIATE));
+  Bitral::ComparisonResult cmp_res(Region->createComparison(reg, Bitral::Immediate(BContext, 16, IMMEDIATE));
   Region->createConditionalOr(cmp_res, CompareRes::LESS, status, Bitral::Immediate(BContext, 32, 1), Bitral::Immediate(BContext, 32, 0));
   Region->createConditionalOr(cmp_res, CompareRes::EQUAL, status, Bitral::Immediate(BContext, 32, 2), Bitral::Immediate(BContext, 32, 0));
   Region->increaseMemoryPosition(4);

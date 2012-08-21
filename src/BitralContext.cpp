@@ -27,21 +27,22 @@ CodeRegion* BitralContext::createNewCodeRegion(ConstantMemoryAddress starting_ad
   CodeRegionMapIterator MapIt = CodeRegions.find(starting_address);
   if (CodeRegions.find(starting_address) != CodeRegions.end())
     return MapIt->second;
-  CodeRegion* NewCodeRegion = new CodeRegion(CompState, starting_address);
+  CodeRegion* NewCodeRegion = new CodeRegion(*this, starting_address);
   CodeRegions[starting_address] = NewCodeRegion;
 
   return NewCodeRegion;
 }
 
 void BitralContext::setMemorySpace(void* memory, boost::uint64_t size) {
-
-
+  llvm::GlobalVariable* RegGV = llvm::dyn_cast<llvm::GlobalVariable>(CompState.Module->getOrInsertGlobal("", 
+                                               llvm::ArrayType::get(llvm::Type::getInt8Ty(CompState.LLVMCtx), 
+                                               size)));
+  CompState.ExecEngine->addGlobalMapping(RegGV, memory);
+  MemorySpace = RegGV;
 }
 
-llvm::GlobalValue* BitralContext::getMemorySpace() {
-
-  return NULL;
-
+llvm::GlobalValue* BitralContext::getMemorySpace() const {
+  return MemorySpace;
 }
 
 /*

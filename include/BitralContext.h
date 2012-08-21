@@ -56,21 +56,22 @@ class BitralContext {
   llvm::Module* Module;
   llvm::ExecutionEngine* ExecEngine;*/
   CompilerState CompState;
-//  llvm::GlobalValue* MemorySpace;
+  llvm::GlobalValue* MemorySpace;
 
 public:
   RegisterMapIterator reg_begin() { return Registers.begin(); }
   RegisterMapIterator reg_end() { return Registers.end(); }
   CodeRegion* createNewCodeRegion(ConstantMemoryAddress starting_address);
   void setMemorySpace(void* memory, boost::uint64_t size);
-  llvm::GlobalValue* getMemorySpace();
+  llvm::GlobalValue* getMemorySpace() const;
 //  Register* addRegister(boost::uint16_t bit_size, const std::string& name);
   Register* addRegister(boost::uint16_t bit_size, const std::string& name, void* memory_map_location);
   Register* getRegister(const std::string& name) const;
   Register* addSubRegister(Register* base, Register::Interval intv, const std::string& name);
   void addMapping(llvm::GlobalVariable* GV, void* address);
-  llvm::LLVMContext& getCompilerContext() { return CompState.LLVMCtx; }
-  void printModule(const std::string& file_name) { 
+  const CompilerState& getCompilerState() const { return CompState; }
+  llvm::LLVMContext& getCompilerContext() const { return CompState.LLVMCtx; }
+  void printModule(const std::string& file_name) const { 
     std::string Error;
     llvm::raw_fd_ostream FileStream(file_name.c_str(), Error);
     CompState.Module->print(FileStream, NULL);

@@ -19,6 +19,7 @@ IN THE SOFTWARE.
 
 #include <BitralContext.h>
 #include <iostream>
+#include <cassert>
 #include <CodeRegion.h>
 
 using namespace Bitral;
@@ -68,9 +69,10 @@ llvm::Value* CodeRegion::readOperand(const Operand* src) {
 
 }
 
-CodeRegion::CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos) : 
+CodeRegion::CodeRegion(const BitralContext& b_context, ConstantMemoryAddress initial_pos) : 
                        CurrentPos(initial_pos), CurrentBranch(initial_pos), 
-                       Builder(c_state.LLVMCtx), CompState(c_state), 
+                       Builder(b_context.getCompilerContext()), BContext(b_context), 
+                       CompState(b_context.getCompilerState()), 
                        CurrentVector(new InstructionVector()) {
 
 //Function Creation
@@ -152,6 +154,17 @@ void CodeRegion::createMove(const Operand& src, DestinationOperand* dst) {
 void CodeRegion::createAdd(const Operand& src, DestinationOperand* dst) {
   llvm::Value* val = Builder.CreateAdd(readOperand(&src), readOperand(dst));
   writeOperand(dst, val);
+}
+
+void CodeRegion::createStore(const Operand& src, const MemoryAddress& dst) {
+  llvm::Value* Idxs[2] = { llvm::ConstantInt::get(llvm::Type::getInt8Ty(CompState.LLVMCtx), 0), readOperand(&dst) };
+  llvm::Value* GEP = Builder.CreateGEP(BContext.getMemorySpace(), Idxs);
+  llvm::Value* OperandVal = readOperand(&src);
+  llvm::IntegerType* OperandTy = llvm::dyn_cast<llvm::IntegerType>(OperandVal->getType());
+  assert(OperandTy != NULL);
+  if (OperandTy->getBitWidth() != 8)
+    GEP = Builder.CreateBitCast(GEP, llvm::PointerType::get(OperandTy,0));
+  Builder.CreateStore(OperandVal, GEP);
 }
 
 ComparisonResult CodeRegion::createComparison(ComparisonResult::Type type, const Operand& op1,

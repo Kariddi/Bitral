@@ -72,7 +72,8 @@ class CodeRegion {
   llvm::Function* RegionFunc;
   llvm::BasicBlock* PreviousBB;
   llvm::IRBuilder<> Builder;
-  CompilerState CompState;
+  const BitralContext& BContext;
+  const CompilerState& CompState;
   InstructionMap AddressToInstructions;
   CAddrMap ActiveBranches;
   InstructionVector* CurrentVector;
@@ -82,7 +83,7 @@ class CodeRegion {
   llvm::BasicBlock* linkBranch(const ConstantMemoryAddress& branch_addr) const;
   void writeOperand(DestinationOperand* dst, llvm::Value* val);
   llvm::Value* readOperand(const Operand* src);
-  CodeRegion(CompilerState& c_state, ConstantMemoryAddress initial_pos);
+  CodeRegion(const BitralContext& c_state, ConstantMemoryAddress initial_pos);
 public:
   typedef void(*CodePointer)();
   ~CodeRegion();
@@ -93,6 +94,7 @@ public:
   void createXOR(const Operand& src, DestinationOperand* dst);
   void createMove(const Operand& src, DestinationOperand* dst);
   void createAdd(const Operand& src, DestinationOperand* dst);
+  void createStore(const Operand& src, const MemoryAddress& dst);
   ComparisonResult createComparison(ComparisonResult::Type type, 
                                     const Operand& op1, const Operand& op2); 
   ConstantMemoryAddress createOffsetConditionalBranch(ComparisonResult comparison, boost::int16_t offset);
